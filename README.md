@@ -11,7 +11,25 @@ make one PPO concept concrete and observable; if you can't see it, it isn't done
 Zulrah because the fight is genuinely hard for a small network, and because the payoff
 is watching a 20k-parameter MLP prayer-flick a boss in a real 3D client.
 
-How it actually went, and what I learned: [LEARNINGS.md](LEARNINGS.md).
+## What I learned
+
+- The environment is the hard part. The worst bugs weren't RL: a config enum that ate
+  every hit, and a wall-clock lock that put Zulrah to sleep at fast tick rates (my
+  best early agent had never actually been attacked).
+- Whatever you reward densely is what gets optimized. My anti-cheat penalty taught
+  the agent that the safest move was to not fight.
+- Most penalty terms are traps: death and damage-taken are self-penalizing, a time
+  penalty rewards suicide, discounting already prices speed. Two positive terms won.
+- On-policy RL can't learn from a success it never samples. Five versions of reward
+  and hyperparameter tuning failed for this one reason; a curriculum that
+  manufactures the first kill fixed it in one rollout.
+- Curricula fail too: advancing on average kill rate overshoots real ability, and
+  grinding an unwinnable level actively corrupts the policy.
+- Don't half-cheat the observations. Give the policy what a human can perceive, in a
+  form it can use.
+- Build the watching tools first. They caught more bugs than any metric.
+
+The full story, version by version: [LEARNINGS.md](LEARNINGS.md).
 
 ## Status
 
