@@ -4,7 +4,14 @@ A minimal, **observable** reinforcement-learning project: train a small MLP poli
 stable-baselines3) to fight the OSRS boss **Zulrah** on a self-hosted RuneScape private server.
 Each milestone makes one RL concept concrete and watchable. No LLM is in the control loop.
 
-How it actually went, version by version: [LEARNINGS.md](LEARNINGS.md).
+## Why
+
+To learn RL by watching it happen, not by reading about it. Each milestone exists to
+make one PPO concept concrete and observable; if you can't see it, it isn't done.
+Zulrah because the fight is genuinely hard for a small network, and because the payoff
+is watching a 20k-parameter MLP prayer-flick a boss in a real 3D client.
+
+How it actually went, and what I learned: [LEARNINGS.md](LEARNINGS.md).
 
 ## Status
 

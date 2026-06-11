@@ -3,6 +3,15 @@
 How training actually went, version by version. Raw logs are in `logs/`, the
 cross-version history in `metrics/training_history.csv`.
 
+## Why
+
+I wanted to learn RL by watching it happen, not by reading about it. The brief I
+wrote for myself treats the project as a teaching artifact: each milestone makes one
+PPO concept concrete and observable, and if you can't see it, it isn't done. Zulrah
+because the fight is genuinely hard for a small network (four rotations, prayer
+switching, phase timing), and because the payoff is watching a 20k-parameter MLP
+prayer-flick a boss in a real 3D client. No LLM anywhere in the control loop.
+
 Short version: v2-v7 tried six reward and hyperparameter fixes and none produced
 reliable kills, because a full kill had never appeared in the agent's rollouts and
 on-policy RL can't learn from outcomes it never samples. A reverse-HP curriculum (v8)
@@ -129,3 +138,47 @@ are what a human reads.
 One measurement habit worth keeping: reward curves were excluded from cross-version
 comparisons, since every version has a different reward function. Kill rate and
 Zulrah's minimum HP per episode were the scoreboard.
+
+## What I learned
+
+In rough order of how much each one cost me:
+
+- The environment really is the hard part. The three worst bugs were an invalid
+  config enum that silently ate every player hit, a wall-clock lock that put Zulrah
+  to sleep at fast tick rates, and a 59% kill rate I celebrated before realizing the
+  boss had never attacked once. None of them were RL.
+- Whatever you reward densely is what gets optimized. My first reward had a clever
+  anti-cheat term (penalize losing HP, prayer, and supplies) and it taught the agent
+  that the safest move was to not fight. I spent a while hoping it "just needed more
+  time to grok" before accepting the value function itself was the problem.
+- Most penalty terms are traps. Death and taking damage are already self-penalizing,
+  a time penalty rewards suicide, and discounting already prices speed. The reward
+  that survived to the end was two positive terms and nothing else. Late in the
+  project I caught myself again: when v8 stalled, the proposed fix was a
+  prayer-accuracy reward term, and it felt wrong for the same reason. Rewarding a
+  means instead of the end is how you die by a thousand shaping terms.
+- On-policy RL cannot learn from a success it never samples. This one sentence
+  explains five failed versions. Reward weights, entropy, and gamma all changed
+  behavior, but none of them make the agent stumble into its first multi-minute
+  kill. You have to manufacture the first success and grow it from there.
+- Curricula fail in their own way. Mine advanced on the average kill rate over a
+  band of difficulties, which the easy fights carry, so it kept promoting the agent
+  past its actual ability. And sitting on an unwinnable level doesn't just stall,
+  it actively grinds the policy back into the old chip-and-die behavior.
+- Entropy is noise, not depth. Bumping the coefficient got first kills 2.5x earlier
+  and did nothing about the plateau. The useful skill is reading entropy against
+  kill rate: falling together with rising kills means commitment, falling with flat
+  reward means collapse into a local optimum.
+- With no death penalty, gamma is the price of dying. My v7 horizon hunch was right,
+  the agent fought visibly better, and it still got zero kills. That was what
+  finally convinced me the wall wasn't in the reward at all.
+- Don't half-cheat the observations. I noticed very late that Zulrah's internal
+  phase counters had been bolted into the state: privileged information that broke
+  the "let it discover the pattern" rule, delivered in a form the network couldn't
+  use anyway. If you give the policy information, give it what a human can actually
+  perceive. The designed follow-up is a ring buffer of the last few surface
+  positions, because that's literally what a human reads.
+- Build the watching tools first. The dashboard and the 3D spectator client felt
+  like indulgence and caught more problems than any metric: the asleep boss, the
+  bot wandering out of the arena, the chip-and-die loop. Same lesson as the brief:
+  if you can't see it, it isn't done.
