@@ -19,6 +19,50 @@ fixed that in the first rollout and climbed to reliable kills from ~340/500 star
 HP. v9 pushed the frontier to 395, then collapsed. The remaining gap looks like a
 capability limit of the memoryless policy, not a tuning problem.
 
+## What I learned
+
+In rough order of how much each one cost me:
+
+- The environment really is the hard part. The three worst bugs were an invalid
+  config enum that silently ate every player hit, a wall-clock lock that put Zulrah
+  to sleep at fast tick rates, and a 59% kill rate I celebrated before realizing the
+  boss had never attacked once. None of them were RL.
+- Whatever you reward densely is what gets optimized. My first reward had a clever
+  anti-cheat term (penalize losing HP, prayer, and supplies) and it taught the agent
+  that the safest move was to not fight. I spent a while hoping it "just needed more
+  time to grok" before accepting the value function itself was the problem.
+- Most penalty terms are traps. Death and taking damage are already self-penalizing,
+  a time penalty rewards suicide, and discounting already prices speed. The reward
+  that survived to the end was two positive terms and nothing else. Late in the
+  project I caught myself again: when v8 stalled, the proposed fix was a
+  prayer-accuracy reward term, and it felt wrong for the same reason. Rewarding a
+  means instead of the end is how you die by a thousand shaping terms.
+- On-policy RL cannot learn from a success it never samples. This one sentence
+  explains five failed versions. Reward weights, entropy, and gamma all changed
+  behavior, but none of them make the agent stumble into its first multi-minute
+  kill. You have to manufacture the first success and grow it from there.
+- Curricula fail in their own way. Mine advanced on the average kill rate over a
+  band of difficulties, which the easy fights carry, so it kept promoting the agent
+  past its actual ability. And sitting on an unwinnable level doesn't just stall,
+  it actively grinds the policy back into the old chip-and-die behavior.
+- Entropy is noise, not depth. Bumping the coefficient got first kills 2.5x earlier
+  and did nothing about the plateau. The useful skill is reading entropy against
+  kill rate: falling together with rising kills means commitment, falling with flat
+  reward means collapse into a local optimum.
+- With no death penalty, gamma is the price of dying. My v7 horizon hunch was right,
+  the agent fought visibly better, and it still got zero kills. That was what
+  finally convinced me the wall wasn't in the reward at all.
+- Don't half-cheat the observations. I noticed very late that Zulrah's internal
+  phase counters had been bolted into the state: privileged information that broke
+  the "let it discover the pattern" rule, delivered in a form the network couldn't
+  use anyway. If you give the policy information, give it what a human can actually
+  perceive. The designed follow-up is a ring buffer of the last few surface
+  positions, because that's literally what a human reads.
+- Build the watching tools first. The dashboard and the 3D spectator client felt
+  like indulgence and caught more problems than any metric: the asleep boss, the
+  bot wandering out of the arena, the chip-and-die loop. Same lesson as the brief:
+  if you can't see it, it isn't done.
+
 ## The environment was most of the work
 
 The plan said Elvarg; Elvarg turned out to have no Zulrah at all. Switched to a
@@ -139,46 +183,3 @@ One measurement habit worth keeping: reward curves were excluded from cross-vers
 comparisons, since every version has a different reward function. Kill rate and
 Zulrah's minimum HP per episode were the scoreboard.
 
-## What I learned
-
-In rough order of how much each one cost me:
-
-- The environment really is the hard part. The three worst bugs were an invalid
-  config enum that silently ate every player hit, a wall-clock lock that put Zulrah
-  to sleep at fast tick rates, and a 59% kill rate I celebrated before realizing the
-  boss had never attacked once. None of them were RL.
-- Whatever you reward densely is what gets optimized. My first reward had a clever
-  anti-cheat term (penalize losing HP, prayer, and supplies) and it taught the agent
-  that the safest move was to not fight. I spent a while hoping it "just needed more
-  time to grok" before accepting the value function itself was the problem.
-- Most penalty terms are traps. Death and taking damage are already self-penalizing,
-  a time penalty rewards suicide, and discounting already prices speed. The reward
-  that survived to the end was two positive terms and nothing else. Late in the
-  project I caught myself again: when v8 stalled, the proposed fix was a
-  prayer-accuracy reward term, and it felt wrong for the same reason. Rewarding a
-  means instead of the end is how you die by a thousand shaping terms.
-- On-policy RL cannot learn from a success it never samples. This one sentence
-  explains five failed versions. Reward weights, entropy, and gamma all changed
-  behavior, but none of them make the agent stumble into its first multi-minute
-  kill. You have to manufacture the first success and grow it from there.
-- Curricula fail in their own way. Mine advanced on the average kill rate over a
-  band of difficulties, which the easy fights carry, so it kept promoting the agent
-  past its actual ability. And sitting on an unwinnable level doesn't just stall,
-  it actively grinds the policy back into the old chip-and-die behavior.
-- Entropy is noise, not depth. Bumping the coefficient got first kills 2.5x earlier
-  and did nothing about the plateau. The useful skill is reading entropy against
-  kill rate: falling together with rising kills means commitment, falling with flat
-  reward means collapse into a local optimum.
-- With no death penalty, gamma is the price of dying. My v7 horizon hunch was right,
-  the agent fought visibly better, and it still got zero kills. That was what
-  finally convinced me the wall wasn't in the reward at all.
-- Don't half-cheat the observations. I noticed very late that Zulrah's internal
-  phase counters had been bolted into the state: privileged information that broke
-  the "let it discover the pattern" rule, delivered in a form the network couldn't
-  use anyway. If you give the policy information, give it what a human can actually
-  perceive. The designed follow-up is a ring buffer of the last few surface
-  positions, because that's literally what a human reads.
-- Build the watching tools first. The dashboard and the 3D spectator client felt
-  like indulgence and caught more problems than any metric: the asleep boss, the
-  bot wandering out of the arena, the chip-and-die loop. Same lesson as the brief:
-  if you can't see it, it isn't done.
