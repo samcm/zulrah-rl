@@ -1,0 +1,14 @@
+# Core RL stack
+stable_baselines3==2.8.0
+gymnasium==1.2.3
+numpy==2.4.6
+torch==2.12.0
+tensorboard==2.20.0
+
+# Live watcher (eval/watch.py)
+pygame==2.6.1
+
+# Web dashboard (ui/)
+fastapi==0.136.3
+uvicorn==0.49.0
+websockets==16.0

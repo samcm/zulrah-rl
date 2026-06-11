@@ -1,0 +1,360 @@
+diff --git a/src/main/java/com/zenyte/cores/CoresManager.java b/src/main/java/com/zenyte/cores/CoresManager.java
+index 373a86a7..65d430cf 100644
+--- a/src/main/java/com/zenyte/cores/CoresManager.java
++++ b/src/main/java/com/zenyte/cores/CoresManager.java
+@@ -110,6 +110,7 @@ public final class CoresManager {
+ 	public static ScheduledExecutorService slowExecutor;
+ 	@Getter @Setter
+     public static volatile boolean shutdown;
++	public static volatile long TICK_MS = 600;   // actual world-tick duration (ms); tick-relative wall-clock timings scale by this
+ 	private static ServiceProvider serviceProvider;
+ 	//@Getter private static ScheduledExecutorService grandExchangeExecutor;
+ 	@Getter private static LoginManager loginManager;
+@@ -130,7 +131,11 @@ public final class CoresManager {
+ 				new SlowThreadFactory(new SlowThreadHandler()), "Slow thread pool executor");
+ 		serviceProvider = new ServiceProvider(false);
+ 		loginManager = new LoginManager();
+-		worldThread.scheduleAtFixedRate(new WorldThread(), 0, 600, TimeUnit.MILLISECONDS);
++		// RL: allow faster-than-real-time ticks for training throughput (env var RL_TICK_MS, default 600ms).
++		final String tickMsEnv = System.getenv("RL_TICK_MS");
++		final long tickMs = tickMsEnv != null ? Long.parseLong(tickMsEnv) : 600;
++		TICK_MS = tickMs;   // wall-clock timings (e.g. Entity.lock) scale by this so they last the right tick-count
++		worldThread.scheduleAtFixedRate(new WorldThread(), 0, tickMs, TimeUnit.MILLISECONDS);
+ 		//worldThread.start();
+         //grandExchangeExecutor = new SlowThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+         //        new SlowThreadFactory(new SlowThreadHandler()), "Grand exchange thread pool executor");
+diff --git a/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahInstance.java b/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahInstance.java
+index d6afe982..5c02c48f 100644
+--- a/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahInstance.java
++++ b/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahInstance.java
+@@ -45,6 +45,9 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+     @Setter
+     private ZulrahNPC zulrah;
+     private boolean initiated;
++    private boolean headless;
++    @Getter
++    private int outcome; // 0 = ongoing, 1 = Zulrah killed, 2 = player died
+     private long ms;
+     public ZulrahInstance(final Player player, final FadeScreen fadeScreen, final AllocatedArea area) {
+         super(area, 280, 381);
+@@ -57,7 +60,7 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+      *
+      * @param player player to teleport.
+      */
+-    public static final void launch(final Player player) {
++    public static final ZulrahInstance launch(final Player player) {
+         try {
+             val area = MapBuilder.findEmptyChunk(WIDTH, HEIGHT);
+             val fadeScreen = new FadeScreen(player);
+@@ -65,8 +68,29 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+             instance.ms = System.currentTimeMillis();
+             instance.constructRegion();
+             fadeScreen.fade();
++            return instance;
++        } catch (OutOfSpaceException e) {
++            log.error(Strings.EMPTY, e);
++            return null;
++        }
++    }
++
++    /**
++     * Headless launch for an RL bot (no client): builds the instance and teleports the player in WITHOUT the
++     * fade/camera/dialogue cinematic. With no fade interface opened, {@link #enter(Player)}'s spawn gate is open
++     * immediately, so Zulrah spawns as soon as the player enters the region.
++     */
++    public static final ZulrahInstance launchHeadless(final Player player) {
++        try {
++            val area = MapBuilder.findEmptyChunk(WIDTH, HEIGHT);
++            val instance = new ZulrahInstance(player, null, area);
++            instance.headless = true;
++            instance.ms = System.currentTimeMillis();
++            instance.constructRegion();
++            return instance;
+         } catch (OutOfSpaceException e) {
+             log.error(Strings.EMPTY, e);
++            return null;
+         }
+     }
+ 
+@@ -78,6 +102,16 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+     @Override
+     public void constructed() {
+         val position = getLocation(2268, 3068, 0);
++        if (headless) {
++            WorldTasksManager.schedule(new WorldTask() {
++                @Override
++                public void run() {
++                    player.teleport(position);
++                    stop();
++                }
++            }, 0, 0);
++            return;
++        }
+         val camPos = getLocation(2256, 3064, 0);
+         val camLook = getLocation(2275, 3080, 0);
+         WorldTasksManager.schedule(new TickTask() {
+@@ -124,6 +158,9 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+     @Override
+     public void leave(final Player player, boolean logout) {
+         player.resetViewDistance();
++        if (outcome == 0 && player == this.player) {
++            outcome = 3; // left the instance mid-fight -> terminal (abandoned)
++        }
+     }
+ 
+     @Override
+@@ -159,6 +196,7 @@ public final class ZulrahInstance extends DynamicArea implements DeathPlugin, Pa
+             player.sendMessage(Colour.RS_GREEN.wrap("The blessing bestowed upon you for completing the Western elite diary empowers you to continue. Carry on the fight!"));
+             return true;
+         }
++        outcome = 2; // player died (RL episode terminal)
+         player.setAnimation(Animation.STOP);
+         player.lock();
+         player.stopAll();
+diff --git a/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahNPC.java b/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahNPC.java
+index 49a1b74a..1391be5c 100644
+--- a/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahNPC.java
++++ b/src/main/java/com/zenyte/game/content/boss/zulrah/ZulrahNPC.java
+@@ -375,6 +375,7 @@ public final class ZulrahNPC extends NPC {
+ 				if (ZulrahNPC.this.isDead() || ZulrahNPC.this.isFinished()) {
+ 					if (cloud != null) {
+ 						World.removeObject(cloud);
++						venomClouds.remove(tile);
+ 					}
+ 					stop();
+ 					return;
+@@ -382,9 +383,11 @@ public final class ZulrahNPC extends NPC {
+ 				if (cloud == null) {
+ 				    World.sendSoundEffect(tile, SOUND_EFFECT_IMPACT);
+ 					World.spawnObject(cloud = new VenomCloud(tile));
++					venomClouds.add(tile); // RL: track active cloud centers for the state vector
+ 				} else {
+ 					if (ticks == 30) {
+ 						World.removeObject(cloud);
++						venomClouds.remove(tile);
+ 						stop();
+ 						World.sendSoundEffect(tile, Utils.random(2) == 0 ? DISSIPATE_A : DISSIPATE_B);
+ 					} else {
+diff --git a/src/main/java/com/zenyte/game/content/tog/TearsOfGuthixWall.java b/src/main/java/com/zenyte/game/content/tog/TearsOfGuthixWall.java
+index 1ccdea34..07ea1a46 100644
+--- a/src/main/java/com/zenyte/game/content/tog/TearsOfGuthixWall.java
++++ b/src/main/java/com/zenyte/game/content/tog/TearsOfGuthixWall.java
+@@ -76,8 +76,10 @@ public enum TearsOfGuthixWall {
+             // This ensures that tears are constantly shuffled and remain 3-3-3 each.
+             val possibleWalls = new ObjectArrayList<>(WALLS);
+             possibleWalls.removeIf(wall -> wall.currentTears != TearsOfGuthix.ABSENCE);
+-            val targetWall = Utils.getRandomCollectionElement(possibleWalls);
+-            targetWall.transform(currentTears);
++            if (!possibleWalls.isEmpty()) {
++                val targetWall = Utils.getRandomCollectionElement(possibleWalls);
++                targetWall.transform(currentTears);
++            }
+         }
+         currentTears = nextTear;
+         wallObject.setId(currentTears.getObjectId());
+diff --git a/src/main/java/com/zenyte/game/world/entity/Entity.java b/src/main/java/com/zenyte/game/world/entity/Entity.java
+index 0c2870fa..97ab3c35 100644
+--- a/src/main/java/com/zenyte/game/world/entity/Entity.java
++++ b/src/main/java/com/zenyte/game/world/entity/Entity.java
+@@ -655,6 +655,17 @@ public abstract class Entity implements Position, CharacterLoop {
+ 		scheduledHits.add(new HitEntry(source, delay, hit));
+ 	}
+ 
++	/** RL: ticks until the next already-fired hit lands on this entity (-1 if none). Lets the agent prayer-flick. */
++	public int ticksUntilNextHit() {
++		int min = Integer.MAX_VALUE;
++		for (final HitEntry entry : scheduledHits) {
++			if (entry.getDelay() < min) {
++				min = entry.getDelay();
++			}
++		}
++		return min == Integer.MAX_VALUE ? -1 : min;
++	}
++
+ 	protected final void iterateScheduledHits() {
+ 		val each = scheduledHits.iterator();
+ 		while (each.hasNext()) {
+@@ -1060,7 +1071,9 @@ public abstract class Entity implements Position, CharacterLoop {
+ 	 *            in ticks.
+ 	 */
+ 	public void lock(final int time) {
+-		lockDelay = Utils.currentTimeMillis() + (time * 600);
++		// "time" is in ticks; scale by the actual world-tick duration so faster-than-real-time ticks (RL_TICK_MS)
++		// don't inflate every lock 24x (which froze Zulrah's attack sequences and broke all tick-based stuns).
++		lockDelay = Utils.currentTimeMillis() + (time * com.zenyte.cores.CoresManager.TICK_MS);
+ 	}
+ 
+ 	public void unlock() {
+diff --git a/src/main/java/com/zenyte/game/world/entity/HitEntry.java b/src/main/java/com/zenyte/game/world/entity/HitEntry.java
+index 64ee44ab..db30aacc 100644
+--- a/src/main/java/com/zenyte/game/world/entity/HitEntry.java
++++ b/src/main/java/com/zenyte/game/world/entity/HitEntry.java
+@@ -29,4 +29,8 @@ public class HitEntry {
+         return delay--;
+     }
+ 
++    public int getDelay() {
++        return delay;
++    }
++
+ }
+diff --git a/src/main/java/com/zenyte/game/world/entity/player/GameCommands.java b/src/main/java/com/zenyte/game/world/entity/player/GameCommands.java
+index 33a724f2..d04cbba5 100644
+--- a/src/main/java/com/zenyte/game/world/entity/player/GameCommands.java
++++ b/src/main/java/com/zenyte/game/world/entity/player/GameCommands.java
+@@ -135,6 +135,28 @@ public final class GameCommands {
+ 	private static final Map<String, Command> COMMANDS = new HashMap<>();
+ 
+ 	static {
++		new Command(Privilege.SPAWN_ADMINISTRATOR, new String[]{"spectate", "watchbot"},
++				"Spectate an RL Zulrah bot's fight (::spectate [index])", (p, args) -> {
++			final int index = args.length > 0 ? NumberUtils.toInt(args[0], 0) : 0;
++			p.sendMessage(com.zenyte.rl.SpectateZulrah.start(p, index));
++		});
++		new Command(Privilege.SPAWN_ADMINISTRATOR, new String[]{"unspectate", "stopspectate"},
++				"Stop spectating an RL Zulrah bot", (p, args) -> {
++			p.sendMessage(com.zenyte.rl.SpectateZulrah.stop(p));
++		});
++		new Command(Privilege.SPAWN_ADMINISTRATOR, "bots", "List active RL Zulrah bots", (p, args) -> {
++			final java.util.List<com.zenyte.rl.Bot> bots = com.zenyte.rl.ZulrahControl.getBots();
++			if (bots.isEmpty()) {
++				p.sendMessage("No RL bots are currently active.");
++				return;
++			}
++			p.sendMessage("Active RL bots (" + bots.size() + "):");
++			for (int i = 0; i < bots.size(); i++) {
++				final com.zenyte.rl.Bot b = bots.get(i);
++				final boolean live = b.getInstance() != null && b.getInstance().getZulrah() != null;
++				p.sendMessage("  [" + i + "] " + b.getName() + (live ? " - fighting Zulrah" : " - no live instance"));
++			}
++		});
+ 		new Command(Privilege.ADMINISTRATOR, "test", TempCommand::run);
+ 		new Command(Privilege.ADMINISTRATOR, "addspins", (p, args) -> {
+ 			p.getWheelOfFortune().setSpins(p.getWheelOfFortune().getSpins() + Integer.parseInt(args[0]));
+diff --git a/src/main/java/com/zenyte/game/world/entity/player/Player.java b/src/main/java/com/zenyte/game/world/entity/player/Player.java
+index 737c1230..f56c4668 100644
+--- a/src/main/java/com/zenyte/game/world/entity/player/Player.java
++++ b/src/main/java/com/zenyte/game/world/entity/player/Player.java
+@@ -1703,6 +1703,11 @@ public class Player extends Entity {
+         val type = hit.getHitType();
+         val shieldId = equipment.getId(EquipmentSlot.SHIELD);
+         val source = entry.getSource();
++        if (source != null && (type == HitType.MELEE || type == HitType.RANGED || type == HitType.MAGIC)) {
++            // RL: record the most recent incoming attack type + tick, so the agent can read the form reactively + flick.
++            getTemporaryAttributes().put("rl_last_hit_type", type.name());
++            getTemporaryAttributes().put("rl_last_hit_cycle", com.zenyte.cores.WorldThread.WORLD_CYCLE);
++        }
+         if (source != null) {
+             if (type == HitType.MELEE) {
+                 if (prayerManager.isActive(Prayer.PROTECT_FROM_MELEE)) {
+diff --git a/src/main/java/com/zenyte/game/world/entity/player/login/LoginRequest.java b/src/main/java/com/zenyte/game/world/entity/player/login/LoginRequest.java
+index 432348f1..68208af4 100644
+--- a/src/main/java/com/zenyte/game/world/entity/player/login/LoginRequest.java
++++ b/src/main/java/com/zenyte/game/world/entity/player/login/LoginRequest.java
+@@ -126,9 +126,12 @@ public class LoginRequest {
+         final com.zenyte.game.packet.Session session = info.getSession();
+         final com.zenyte.network.login.packet.LoginPacketIn request = session.getRequest();
+         if (request.getVersion() != NetworkConstants.REVISION) {
++            System.out.println("[LoginRequest] reject CLIENT_UPDATED: version=" + request.getVersion() + " expected=" + NetworkConstants.REVISION);
+             return ClientResponse.CLIENT_UPDATED;
+         }
+         if (request.getSubVersion() != NetworkConstants.SUB_VERSION_DESKTOP && request.getSubVersion() != NetworkConstants.SUB_VERSION_MOBILE) {
++            System.out.println("[LoginRequest] reject CLIENT_UPDATED: subVersion=" + request.getSubVersion()
++                    + " expected " + NetworkConstants.SUB_VERSION_DESKTOP + " or " + NetworkConstants.SUB_VERSION_MOBILE);
+             return ClientResponse.CLIENT_UPDATED;
+         }
+         final int[] crc = request.getCrc();
+@@ -138,10 +141,13 @@ public class LoginRequest {
+                 continue;
+             }
+             if (crc[i] != Game.crc[i]) {
++                System.out.println("[LoginRequest] reject SERVER_UPDATED: crc mismatch at index " + i
++                        + " client=" + crc[i] + " server=" + Game.crc[i]);
+                 return ClientResponse.SERVER_UPDATED;
+             }
+         }
+         if (!request.getSessionToken().equals("ElZAIrq5NpKN6D3mDdihco3oPeYN2KFy2DCquj7JMmECPmLrDP3Bnw") && !request.getSessionToken().equals("p1cxIGuofoKN6D3mDdihco3oPeYN2KFy2DCquj7JMmEKzxp0igXplg")) {
++            System.out.println("[LoginRequest] reject BAD_SESSION_ID: token=" + request.getSessionToken());
+             return ClientResponse.BAD_SESSION_ID;
+         }
+         if (World.getPlayers().size() >= NetworkConstants.PLAYER_CAP) {
+diff --git a/src/main/java/com/zenyte/game/world/entity/player/update/NPCInfo.java b/src/main/java/com/zenyte/game/world/entity/player/update/NPCInfo.java
+index 1bf43c84..458a98a3 100644
+--- a/src/main/java/com/zenyte/game/world/entity/player/update/NPCInfo.java
++++ b/src/main/java/com/zenyte/game/world/entity/player/update/NPCInfo.java
+@@ -34,7 +34,7 @@ public final class NPCInfo implements GamePacketEncoder {
+      */
+     private static final UpdateMask[] masks = new UpdateMask[]{
+             new FaceEntityMask(), new FaceLocationMask(), new AnimationMask(), new TransformationMask(),
+-            new HitMask(), new GraphicsMask(), new ForceChatMask(), new OptionMask()
++            new HitMask(), new GraphicsMask(), new ForceChatMask()
+     };
+     /**
+      * The length of the masks.
+diff --git a/src/main/java/com/zenyte/network/handshake/HandshakeHandler.java b/src/main/java/com/zenyte/network/handshake/HandshakeHandler.java
+index 55fb8b01..5ca565dd 100644
+--- a/src/main/java/com/zenyte/network/handshake/HandshakeHandler.java
++++ b/src/main/java/com/zenyte/network/handshake/HandshakeHandler.java
+@@ -46,6 +46,7 @@ public class HandshakeHandler extends SimpleChannelInboundHandler<HandshakePacke
+         }
+ 		if (msg instanceof HandshakeType) {
+ 			val type = (HandshakeType) msg;
++			System.out.println("[HandshakeHandler] game connection (opcode 14) -> switching to LoginDecoder");
+ 			ctx.writeAndFlush(new HandshakePacketOut(type, ClientResponse.SUCCESSFUL), ctx.voidPromise());
+ 			ctx.pipeline().replace(HandshakeDecoder.class.getSimpleName(), LoginDecoder.class.getSimpleName(), new LoginDecoder());
+ 			ctx.pipeline().replace(HandshakeEncoder.class.getSimpleName(), LoginEncoder.class.getSimpleName(), new LoginEncoder());
+diff --git a/src/main/java/com/zenyte/network/login/codec/LoginDecoder.java b/src/main/java/com/zenyte/network/login/codec/LoginDecoder.java
+index e6c138d7..2fd5c14d 100644
+--- a/src/main/java/com/zenyte/network/login/codec/LoginDecoder.java
++++ b/src/main/java/com/zenyte/network/login/codec/LoginDecoder.java
+@@ -42,7 +42,8 @@ public class LoginDecoder extends ByteToMessageDecoder {
+             return;
+         }
+         in.markReaderIndex();
+-        val type = LoginType.get(in.readUnsignedByte());
++        val opcode = in.readUnsignedByte();
++        val type = LoginType.get(opcode);
+         val size = in.readUnsignedShort();
+ 
+         if (in.readableBytes() < size) {
+@@ -52,6 +53,13 @@ public class LoginDecoder extends ByteToMessageDecoder {
+         val subVersion = in.readInt();
+         //in.readUnsignedByte(); Commenting out; We didn't use this before however we use this same exact index in buffer to determine mac address length.
+         val macLength = in.readUnsignedByte();
++        System.out.println("[LoginDecoder] opcode=" + opcode + " type=" + type + " size=" + size
++                + " version=" + version + " subVersion=" + subVersion + " macLength=" + macLength);
++        if (type == null) {
++            System.out.println("[LoginDecoder] unknown login opcode " + opcode + " - dropping connection");
++            ctx.channel().close();
++            return;
++        }
+         val device = macLength == 2 ? Device.MOBILE : Device.DESKTOP;
+         StringBuilder macBuilder = new StringBuilder();
+ 
+@@ -66,6 +74,7 @@ public class LoginDecoder extends ByteToMessageDecoder {
+         }
+         val rsaBuf = ByteBufUtil.encipherRSA(in, NetworkConstants.RSA_EXPONENT, NetworkConstants.RSA_MODULUS);
+         val rsaKey = rsaBuf.readUnsignedByte();
++        System.out.println("[LoginDecoder] rsaMagic=" + rsaKey + " (expected 1)");
+ 
+         val xteaKeys = new int[4];
+         val serverKeys = new int[4];
+@@ -119,9 +128,18 @@ public class LoginDecoder extends ByteToMessageDecoder {
+             crc[i] = xteaBuf.readInt();
+         }
+         val isaacPair = new ISAACCipherPair(new ISAACCipher(serverKeys), new ISAACCipher(xteaKeys));
++        System.out.println("[LoginDecoder] decoded username=" + username + " crcCount=" + crc.length
++                + " sessionTokenLen=" + (sessionToken == null ? -1 : sessionToken.length()));
+         out.add(new LoginPacketIn(type, version, subVersion, Utils.formatUsername(username), password, mode, crc,
+                 sessionToken, authenticatorCode, pcIdentifier, authType, hardwareInfo, isaacPair, rsaKey,
+                 xteaKeys, previousXteaKeys, macBuilder.toString(), device));
+     }
+ 
++    @Override
++    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
++        System.out.println("[LoginDecoder] exception while decoding login block - dropping connection: " + cause);
++        cause.printStackTrace();
++        ctx.channel().close();
++    }
++
+ }

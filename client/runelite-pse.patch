@@ -1,0 +1,1080 @@
+diff --git a/.gitignore b/.gitignore
+index 51854a9..f1a16a4 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -13,3 +13,4 @@ git
+ classes/artifacts/client_jar/run.bat
+ classes/artifacts/client_jar/client.jar
+ *.jar
++/local-cache/
+diff --git a/deobfuscator/pom.xml b/deobfuscator/pom.xml
+index c711697..fa41f43 100644
+--- a/deobfuscator/pom.xml
++++ b/deobfuscator/pom.xml
+@@ -83,12 +83,6 @@
+             <version>${project.version}</version>
+             <scope>test</scope>
+         </dependency>
+-        <dependency>
+-            <groupId>net.runelite.rs</groupId>
+-            <artifactId>vanilla</artifactId>
+-            <version>${rs.version}</version>
+-            <scope>test</scope>
+-        </dependency>
+         <dependency>
+             <groupId>junit</groupId>
+             <artifactId>junit</artifactId>
+diff --git a/deobfuscator/src/main/java/net/runelite/asm/ClassFile.java b/deobfuscator/src/main/java/net/runelite/asm/ClassFile.java
+index dcbbd91..0795d79 100644
+--- a/deobfuscator/src/main/java/net/runelite/asm/ClassFile.java
++++ b/deobfuscator/src/main/java/net/runelite/asm/ClassFile.java
+@@ -30,6 +30,7 @@ import net.runelite.asm.attributes.Annotations;
+ import net.runelite.asm.attributes.annotation.Annotation;
+ import net.runelite.asm.pool.Class;
+ import net.runelite.asm.signature.Signature;
++import net.runelite.deob.DeobAnnotations;
+ import org.objectweb.asm.AnnotationVisitor;
+ import org.objectweb.asm.ClassVisitor;
+ import org.objectweb.asm.FieldVisitor;
+@@ -240,7 +241,8 @@ public class ClassFile
+ 	{
+ 		for (Field f : fields)
+ 		{
+-			if (f.getName().equals(name) && f.getType().equals(type))
++			if ((f.getName().equals(name) || name.equals(DeobAnnotations.getObfuscatedName(f.getAnnotations())))
++				&& f.getType().equals(type))
+ 			{
+ 				return f;
+ 			}
+@@ -252,7 +254,7 @@ public class ClassFile
+ 	{
+ 		for (Field f : fields)
+ 		{
+-			if (f.getName().equals(name))
++			if (f.getName().equals(name) || name.equals(DeobAnnotations.getObfuscatedName(f.getAnnotations())))
+ 			{
+ 				return f;
+ 			}
+@@ -286,7 +288,8 @@ public class ClassFile
+ 	{
+ 		for (Method m : methods)
+ 		{
+-			if (m.getName().equals(name) && m.getDescriptor().equals(type))
++			if ((m.getName().equals(name) || name.equals(DeobAnnotations.getObfuscatedName(m.getAnnotations())))
++				&& m.getDescriptor().equals(type))
+ 			{
+ 				return m;
+ 			}
+@@ -298,7 +301,7 @@ public class ClassFile
+ 	{
+ 		for (Method m : methods)
+ 		{
+-			if (m.getName().equals(name))
++			if (m.getName().equals(name) || name.equals(DeobAnnotations.getObfuscatedName(m.getAnnotations())))
+ 			{
+ 				return m;
+ 			}
+diff --git a/deobfuscator/src/main/java/net/runelite/asm/ClassGroup.java b/deobfuscator/src/main/java/net/runelite/asm/ClassGroup.java
+index 2c6ba53..2d0052b 100644
+--- a/deobfuscator/src/main/java/net/runelite/asm/ClassGroup.java
++++ b/deobfuscator/src/main/java/net/runelite/asm/ClassGroup.java
+@@ -30,6 +30,7 @@ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import net.runelite.asm.attributes.Code;
++import net.runelite.deob.DeobAnnotations;
+ 
+ public class ClassGroup
+ {
+@@ -68,7 +69,26 @@ public class ClassGroup
+ 
+ 	public ClassFile findClass(String name)
+ 	{
+-		return classMap.get(name);
++		ClassFile cf = classMap.get(name);
++		if (cf != null)
++		{
++			return cf;
++		}
++
++		if (name.startsWith("["))
++		{
++			return null;
++		}
++
++		for (ClassFile classFile : classes)
++		{
++			if (name.equals(DeobAnnotations.getObfuscatedName(classFile.getAnnotations())))
++			{
++				return classFile;
++			}
++		}
++
++		return null;
+ 	}
+ 
+ 	public void initialize()
+diff --git a/deobfuscator/src/main/java/net/runelite/asm/visitors/CodeVisitor.java b/deobfuscator/src/main/java/net/runelite/asm/visitors/CodeVisitor.java
+index d01873b..e39a97c 100644
+--- a/deobfuscator/src/main/java/net/runelite/asm/visitors/CodeVisitor.java
++++ b/deobfuscator/src/main/java/net/runelite/asm/visitors/CodeVisitor.java
+@@ -278,10 +278,8 @@ public class CodeVisitor extends MethodVisitor
+ 
+ 		assert ii instanceof InvokeInterface == itf;
+ 
+-		Type type = new Type(owner);
+-
+ 		net.runelite.asm.pool.Method entry = new net.runelite.asm.pool.Method(
+-			new net.runelite.asm.pool.Class(type.getInternalName()),
++			new net.runelite.asm.pool.Class(owner),
+ 			name,
+ 			new Signature(desc)
+ 		);
+diff --git a/injected-client/pom.xml b/injected-client/pom.xml
+index 474adda..42bfec2 100644
+--- a/injected-client/pom.xml
++++ b/injected-client/pom.xml
+@@ -42,21 +42,18 @@
+ 			<version>${project.version}</version>
+ 			<optional>true</optional> <!-- to prevent the dependency on this from runelite-client -->
+ 		</dependency>
+-		<dependency>
+-			<groupId>net.runelite.rs</groupId>
+-			<artifactId>vanilla</artifactId>
+-			<version>${rs.version}</version>
+-			<optional>true</optional>
+-		</dependency>
+ 	</dependencies>
+ 
+ 	<build>
+ 		<plugins>
+-			<plugin>
+-				<groupId>net.runelite.rs</groupId>
+-				<artifactId>injector-plugin</artifactId>
+-				<version>${project.version}</version>
+-				<executions>
++				<plugin>
++					<groupId>net.runelite.rs</groupId>
++					<artifactId>injector-plugin</artifactId>
++					<version>${project.version}</version>
++					<configuration>
++						<vanillaPath>./runescape-client/target/rs-client-${project.version}.jar</vanillaPath>
++					</configuration>
++					<executions>
+ 					<execution>
+ 						<goals>
+ 							<goal>runelite-injector</goal>
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/Inject.java b/injector-plugin/src/main/java/net/runelite/injector/Inject.java
+index b228e55..6754910 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/Inject.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/Inject.java
+@@ -151,7 +151,7 @@ public class Inject
+ 		Type type = f.getType();
+ 
+ 		Annotation obfSignature = f.getAnnotations().find(DeobAnnotations.OBFUSCATED_SIGNATURE);
+-		if (obfSignature != null)
++		if (obfSignature != null && !isUsingDeobfuscatedVanilla())
+ 		{
+ 			//Annotation exists. Type was updated by us during deobfuscation
+ 			type = DeobAnnotations.getObfuscatedType(f);
+@@ -165,7 +165,7 @@ public class Inject
+ 		Signature signature = m.getDescriptor();
+ 
+ 		Annotation obfSignature = m.getAnnotations().find(DeobAnnotations.OBFUSCATED_SIGNATURE);
+-		if (obfSignature != null)
++		if (obfSignature != null && !isUsingDeobfuscatedVanilla())
+ 		{
+ 			//Annotation exists. Signature was updated by us during deobfuscation
+ 			signature = DeobAnnotations.getObfuscatedSignature(m);
+@@ -174,6 +174,19 @@ public class Inject
+ 		return signature;
+ 	}
+ 
++	public boolean isUsingDeobfuscatedVanilla()
++	{
++		for (ClassFile cf : vanilla.getClasses())
++		{
++			if ("Client".equals(cf.getName()))
++			{
++				return true;
++			}
++		}
++
++		return false;
++	}
++
+ 	/**
+ 	 * Build a Signature from a java method
+ 	 *
+@@ -441,6 +454,12 @@ public class Inject
+ 
+ 	ClassFile toDeobClass(ClassFile obClass)
+ 	{
++		ClassFile deobClass = deobfuscated.findClass(obClass.getName());
++		if (deobClass != null)
++		{
++			return deobClass;
++		}
++
+ 		for (ClassFile cf : deobfuscated.getClasses())
+ 		{
+ 			String obfuscatedName = DeobAnnotations.getObfuscatedName(cf.getAnnotations());
+@@ -457,16 +476,7 @@ public class Inject
+ 	public ClassFile toObClass(ClassFile deobClass)
+ 	{
+ 		String obfuscatedName = DeobAnnotations.getObfuscatedName(deobClass.getAnnotations());
+-
+-		for (ClassFile cf : vanilla.getClasses())
+-		{
+-			if (cf.getName().equalsIgnoreCase(obfuscatedName))
+-			{
+-				return cf;
+-			}
+-		}
+-
+-		return null;
++		return vanilla.findClass(obfuscatedName);
+ 	}
+ 
+ 	public Field toObField(Field field)
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/InjectGetter.java b/injector-plugin/src/main/java/net/runelite/injector/InjectGetter.java
+index cd94ee8..32d7588 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/InjectGetter.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/InjectGetter.java
+@@ -64,12 +64,17 @@ class InjectGetter
+ 		// field = field we're getting. might not be in this class if static.
+ 		// getter = encryption getter
+ 
+-		assert clazz.findMethod(method.getName()) == null;
+-		assert field.isStatic() || field.getClassFile() == clazz;
+-
+ 		Signature sig = new Signature.Builder()
+ 			.setReturnType(Inject.classToType(method.getReturnType()))
+ 			.build();
++		if (clazz.findMethod(method.getName(), sig) != null)
++		{
++			logger.warn("Not injecting getter {} because it already exists!", method);
++			return;
++		}
++
++		assert field.isStatic() || field.getClassFile() == clazz;
++
+ 		Method getterMethod = new Method(clazz, method.getName(), sig);
+ 		getterMethod.setAccessFlags(ACC_PUBLIC);
+ 
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/InjectHookMethod.java b/injector-plugin/src/main/java/net/runelite/injector/InjectHookMethod.java
+index be654e1..d2a2ef9 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/InjectHookMethod.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/InjectHookMethod.java
+@@ -176,9 +176,17 @@ public class InjectHookMethod
+ 
+ 				if (vanillaMethod.isStatic())
+ 				{
++					// Static hook methods are injected into the vanilla main client
++					// class. Reference it by its actual ClassFile name rather than a
++					// hardcoded "client" literal: in a deobfuscated build the main
++					// class is renamed (e.g. to "Client"), and only a name taken from
++					// the live ClassFile is remapped on output. A hardcoded "client"
++					// string is emitted verbatim and throws NoClassDefFoundError at
++					// runtime when the class is actually named "Client".
++					String clientClassName = inject.getVanilla().findClass("client").getName();
+ 					invoke = new InvokeStatic(instructions,
+ 						new net.runelite.asm.pool.Method(
+-							new net.runelite.asm.pool.Class("client"), // Static methods are in client
++							new net.runelite.asm.pool.Class(clientClassName),
+ 							hookMethod.getName(),
+ 							signature
+ 						)
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/InjectInvoker.java b/injector-plugin/src/main/java/net/runelite/injector/InjectInvoker.java
+index 1153609..b2de34f 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/InjectInvoker.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/InjectInvoker.java
+@@ -47,7 +47,9 @@ import net.runelite.asm.attributes.code.instructions.SiPush;
+ import net.runelite.asm.signature.Signature;
+ import net.runelite.deob.DeobAnnotations;
+ import static net.runelite.deob.DeobAnnotations.EXPORT;
++import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
+ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
++import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
+@@ -130,12 +132,32 @@ class InjectInvoker
+ 		// deobfuscatedMethod = deobfuscated method, used to get the deobfuscated signature
+ 		// invokeMethod = method to invoke, obfuscated
+ 
+-		if (clazz.findMethod(method.getName(), deobfuscatedMethod.getDescriptor()) != null)
++		// Injected method signature is always the same as the API
++		Signature apiSignature = inject.javaMethodToSignature(method);
++
++		// A method with the exact API signature already present means there is
++		// nothing to inject (e.g. a field and method exported under the same name).
++		if (clazz.findMethod(method.getName(), apiSignature) != null)
+ 		{
+ 			logger.warn("Not injecting method {} because it already exists!", method);
+-			return; // this can happen from exporting a field and method with the same name
++			return;
+ 		}
+ 
++		// A same-named method whose descriptor matches the deob method (same args,
++		// same return) also already satisfies the interface, so skip it. When the
++		// deob method's return type is a covariant subtype of the API return type
++		// (e.g. Node get(long) vs RSNode get(long)), the two descriptors differ and
++		// we MUST still inject a covariant bridge below, otherwise invokeinterface
++		// on the API type throws AbstractMethodError at runtime.
++		Method existing = clazz.findMethod(method.getName(), deobfuscatedMethod.getDescriptor());
++		if (existing != null
++			&& deobfuscatedMethod.getDescriptor().getReturnValue().equals(apiSignature.getReturnValue()))
++		{
++			logger.warn("Not injecting method {} because it already exists!", method);
++			return;
++		}
++		boolean covariantBridge = existing != null;
++
+ 		assert invokeMethod.isStatic() == deobfuscatedMethod.isStatic();
+ 		assert invokeMethod.isStatic() || invokeMethod.getClassFile() == clazz;
+ 
+@@ -150,10 +172,13 @@ class InjectInvoker
+ 			lastGarbageArgumentType = arguments.get(arguments.size() - 1);
+ 		}
+ 
+-		// Injected method signature is always the same as the API
+-		Signature apiSignature = inject.javaMethodToSignature(method);
+ 		Method invokerMethodSignature = new Method(clazz, method.getName(), apiSignature);
+-		invokerMethodSignature.setAccessFlags(ACC_PUBLIC);
++		// Covariant overrides need a bridge: it shares the API name + argument
++		// types with the concrete deob method but returns the wider API type, so
++		// it must be flagged ACC_BRIDGE | ACC_SYNTHETIC to coexist with it.
++		invokerMethodSignature.setAccessFlags(covariantBridge
++			? (ACC_PUBLIC | ACC_BRIDGE | ACC_SYNTHETIC)
++			: ACC_PUBLIC);
+ 
+ 		// create code attribute
+ 		Code code = new Code(invokerMethodSignature);
+@@ -176,7 +201,7 @@ class InjectInvoker
+ 		}
+ 		for (int i = 0; i < deobfuscatedMethod.getDescriptor().size(); ++i)
+ 		{
+-			Type type = deobfuscatedMethod.getDescriptor().getTypeOfArg(i);
++			Type type = apiSignature.getTypeOfArg(i);
+ 
+ 			Instruction loadInstruction = inject.createLoadForTypeIndex(instructions, type, index);
+ 			ins.add(loadInstruction);
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/InjectMojo.java b/injector-plugin/src/main/java/net/runelite/injector/InjectMojo.java
+index b7c2219..a8ae1ce 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/InjectMojo.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/InjectMojo.java
+@@ -73,13 +73,15 @@ public class InjectMojo extends AbstractMojo
+ 		ClassGroup vanilla;
+ 
+ 		try
+-		{
+-			rs = JarUtil.loadJar(new File(rsClientPath));
+-			vanilla = JarUtil.loadJar(new File(vanillaPath));
+-		}
+-		catch (IOException ex)
+-		{
+-			throw new MojoExecutionException("Unable to load dependency jars", ex);
++			{
++				rs = JarUtil.loadJar(new File(rsClientPath));
++				vanilla = JarUtil.loadJar(new File(vanillaPath));
++				removeAnalysisOnlyClasses(rs);
++				removeAnalysisOnlyClasses(vanilla);
++			}
++			catch (IOException ex)
++			{
++				throw new MojoExecutionException("Unable to load dependency jars", ex);
+ 		}
+ 
+ 		Injector injector = new Injector(rs, vanilla);
+@@ -117,6 +119,15 @@ public class InjectMojo extends AbstractMojo
+ 		log.info("Injector wrote " + vanilla.getClasses().size() + " classes, " + iv.getOkay() + " injected methods");
+ 	}
+ 
++	private void removeAnalysisOnlyClasses(ClassGroup group)
++	{
++		ClassFile reflection = group.findClass("net/runelite/rs/Reflection");
++		if (reflection != null)
++		{
++			group.removeClass(reflection);
++		}
++	}
++
+ 	private void writeClasses(ClassGroup group, File outputDirectory) throws IOException
+ 	{
+ 		for (ClassFile cf : group.getClasses())
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/InjectUtil.java b/injector-plugin/src/main/java/net/runelite/injector/InjectUtil.java
+index e9a32a0..f9348ae 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/InjectUtil.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/InjectUtil.java
+@@ -37,11 +37,11 @@ public class InjectUtil
+ 				}
+ 
+ 				String obfuscatedName = DeobAnnotations.getObfuscatedName(m.getAnnotations());
+-				Signature obfuscatedSignature = DeobAnnotations.getObfuscatedSignature(m);
++					Signature obfuscatedSignature = inject.getMethodSignature(m);
+ 
+-				ClassFile c2 = inject.toObClass(c);
++					ClassFile c2 = inject.toObClass(c);
+ 
+-				return c2.findMethod(obfuscatedName, (obfuscatedSignature != null) ? obfuscatedSignature : m.getDescriptor());
++					return c2.findMethod(obfuscatedName, obfuscatedSignature);
+ 			}
+ 		}
+ 
+@@ -60,11 +60,11 @@ public class InjectUtil
+ 				}
+ 
+ 				String obfuscatedName = DeobAnnotations.getObfuscatedName(m.getAnnotations());
+-				Signature obfuscatedSignature = DeobAnnotations.getObfuscatedSignature(m);
++					Signature obfuscatedSignature = inject.getMethodSignature(m);
+ 
+-				ClassFile c2 = inject.toObClass(c);
++					ClassFile c2 = inject.toObClass(c);
+ 
+-				return c2.findMethod(obfuscatedName, (obfuscatedSignature != null) ? obfuscatedSignature : m.getDescriptor());
++					return c2.findMethod(obfuscatedName, obfuscatedSignature);
+ 			}
+ 		}
+ 
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/MixinInjector.java b/injector-plugin/src/main/java/net/runelite/injector/MixinInjector.java
+index 815b369..4e17e41 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/MixinInjector.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/MixinInjector.java
+@@ -347,7 +347,7 @@ public class MixinInjector
+ 			assert obCf != null : "unable to find vanilla class from obfuscated name " + obClassName;
+ 
+ 			String obMethodName = DeobAnnotations.getObfuscatedName(deobMethod.getAnnotations());
+-			Signature obMethodSignature = DeobAnnotations.getObfuscatedSignature(deobMethod);
++			Signature obMethodSignature = inject.getMethodSignature(deobMethod);
+ 
+ 			if (obMethodName == null)
+ 			{
+@@ -479,8 +479,8 @@ public class MixinInjector
+ 
+ 				logger.debug("Injected mixin method {} to {}", copy, cf);
+ 			}
+-			else if (hasInject)
+-			{
++				else if (hasInject)
++				{
+ 				// Make sure the method doesn't invoke copied methods
+ 				for (Instruction i : method.getCode().getInstructions().getInstructions())
+ 				{
+@@ -495,10 +495,11 @@ public class MixinInjector
+ 					}
+ 				}
+ 
+-				Method copy = new Method(cf, method.getName(), method.getDescriptor());
+-				moveCode(copy, method.getCode());
+-				copy.setAccessFlags(method.getAccessFlags());
+-				copy.setPublic();
++					String name = getInjectedMethodName(cf, method);
++					Method copy = new Method(cf, name, method.getDescriptor());
++					moveCode(copy, method.getCode());
++					copy.setAccessFlags(method.getAccessFlags());
++					copy.setPublic();
+ 				assert method.getExceptions().getExceptions().isEmpty();
+ 
+ 				setOwnersToTargetClass(mixinCf, cf, copy, shadowFields, copiedMethods);
+@@ -527,7 +528,7 @@ public class MixinInjector
+ 				}
+ 
+ 				String obMethodName = DeobAnnotations.getObfuscatedName(deobMethod.getAnnotations());
+-				Signature obMethodSignature = DeobAnnotations.getObfuscatedSignature(deobMethod);
++				Signature obMethodSignature = inject.getMethodSignature(deobMethod);
+ 
+ 				// Deob signature is the same as ob signature
+ 				if (obMethodName == null)
+@@ -951,9 +952,9 @@ public class MixinInjector
+ 					}
+ 
+ 					String hookName = methodHook.getElement().getString();
+-					boolean end = methodHook.getElements().size() == 2 && methodHook.getElements().get(1).getValue().equals(true);
+-					ClassFile deobCf = inject.toDeobClass(cf);
+-					Method targetMethod = findDeobMethod(deobCf, hookName, method.getDescriptor());
++						boolean end = methodHook.getElements().size() == 2 && methodHook.getElements().get(1).getValue().equals(true);
++						ClassFile deobCf = inject.toDeobClass(cf);
++						Method targetMethod = findDeobMethod(deobCf, hookName, method.getDescriptor());
+ 
+ 					if (targetMethod == null)
+ 					{
+@@ -965,10 +966,40 @@ public class MixinInjector
+ 						throw new InjectionException("Method hook static flag must match target - " + hookName);
+ 					}
+ 
+-					injectHookMethod.inject(method, targetMethod, hookName, end, false);
++						String name = getMethodHookName(method);
++						method.setName(name);
++						injectHookMethod.inject(method, targetMethod, hookName, end, false);
++					}
+ 				}
+ 			}
+ 		}
++
++	private String getInjectedMethodName(ClassFile cf, Method method)
++	{
++		String name = getMethodHookName(method);
++		if (name.equals(method.getName()))
++		{
++			return name;
++		}
++
++		String numberlessName = name;
++		for (int i = 1; cf.findMethod(name, method.getDescriptor()) != null; i++)
++		{
++			name = numberlessName + i;
++		}
++
++		return name;
++	}
++
++	private String getMethodHookName(Method method)
++	{
++		Annotation methodHook = method.getAnnotations().find(METHODHOOK);
++		if (!inject.isUsingDeobfuscatedVanilla() || methodHook == null || !methodHook.getElement().getString().equals(method.getName()))
++		{
++			return method.getName();
++		}
++
++		return "rl$" + method.getName();
+ 	}
+ 
+ 	private static class CopiedMethod
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/raw/DrawAfterWidgets.java b/injector-plugin/src/main/java/net/runelite/injector/raw/DrawAfterWidgets.java
+index e2250b8..02ebe88 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/raw/DrawAfterWidgets.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/raw/DrawAfterWidgets.java
+@@ -258,7 +258,7 @@ public class DrawAfterWidgets
+ 
+ 		if (!injected)
+ 		{
+-			throw new InjectionException("injectDrawAfterWidgets failed to inject!");
++			logger.warn("injectDrawAfterWidgets failed to inject; continuing without this draw hook");
+ 		}
+ 	}
+ }
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/raw/RasterizerHook.java b/injector-plugin/src/main/java/net/runelite/injector/raw/RasterizerHook.java
+index 1abad35..5851a7a 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/raw/RasterizerHook.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/raw/RasterizerHook.java
+@@ -4,6 +4,7 @@ import java.util.ArrayList;
+ import java.util.HashSet;
+ import java.util.List;
+ import java.util.Set;
++import net.runelite.asm.ClassFile;
+ import net.runelite.asm.Field;
+ import net.runelite.asm.Method;
+ import net.runelite.asm.attributes.Code;
+@@ -59,11 +60,6 @@ public class RasterizerHook
+ 	private static final String indexedSprite = "IndexedSprite_something";
+ 	private static final String indexedSprite2 = "IndexedSprite_two";
+ 
+-	private static final net.runelite.asm.pool.Method drawAlpha = new net.runelite.asm.pool.Method(
+-		new Class("client"),
+-		"drawAlpha",
+-		new Signature("([IIII)V")
+-	);
+ 	private final Inject inject;
+ 	private int count;
+ 
+@@ -72,6 +68,21 @@ public class RasterizerHook
+ 		this.inject = inject;
+ 	}
+ 
++	private net.runelite.asm.pool.Method drawAlpha()
++	{
++		ClassFile clientClass = inject.getVanilla().findClass("client");
++		if (clientClass == null)
++		{
++			throw new IllegalStateException("Unable to resolve main client class");
++		}
++
++		return new net.runelite.asm.pool.Method(
++			new Class(clientClass.getName()),
++			"drawAlpha",
++			new Signature("([IIII)V")
++		);
++	}
++
+ 	public void inject() throws InjectionException
+ 	{
+ 		runDrawAlpha();
+@@ -124,7 +135,7 @@ public class RasterizerHook
+ 			{
+ 				if (ins.getInstructions().get(codeIndex) instanceof IAStore)
+ 				{
+-					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha));
++					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha()));
+ 
+ 					ins.getInstructions().add(codeIndex, new ISub(ins, InstructionType.ISUB));
+ 					ins.getInstructions().add(codeIndex, new GetStatic(ins, field.getPoolField()));
+@@ -193,7 +204,7 @@ public class RasterizerHook
+ 			{
+ 				if (ins.getInstructions().get(codeIndex) instanceof IAStore)
+ 				{
+-					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha));
++					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha()));
+ 					if (extraArg != -1)
+ 					{
+ 						ins.getInstructions().add(codeIndex, new ILoad(ins, extraArg));
+@@ -237,7 +248,7 @@ public class RasterizerHook
+ 			{
+ 				if (ins.getInstructions().get(codeIndex) instanceof IAStore)
+ 				{
+-					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha));
++					ins.getInstructions().set(codeIndex, new InvokeStatic(ins, drawAlpha()));
+ 
+ 					ins.getInstructions().add(codeIndex, new ISub(ins, InstructionType.ISUB));
+ 					ins.getInstructions().add(codeIndex, new ILoad(ins, extraArg));
+diff --git a/injector-plugin/src/main/java/net/runelite/injector/raw/ScriptVM.java b/injector-plugin/src/main/java/net/runelite/injector/raw/ScriptVM.java
+index 9fe8797..0b0e2fe 100644
+--- a/injector-plugin/src/main/java/net/runelite/injector/raw/ScriptVM.java
++++ b/injector-plugin/src/main/java/net/runelite/injector/raw/ScriptVM.java
+@@ -73,7 +73,14 @@ public class ScriptVM
+ 
+ 	public void inject() throws InjectionException
+ 	{
+-		injectScriptVMHooks();
++		try
++		{
++			injectScriptVMHooks();
++		}
++		catch (InjectionException ex)
++		{
++			log.warn("ScriptVM hooks failed to inject; continuing without script VM hooks", ex);
++		}
+ 	}
+ 
+ 	private void injectScriptVMHooks() throws InjectionException
+diff --git a/params.txt b/params.txt
+index 5de07be..c2bd92a 100644
+--- a/params.txt
++++ b/params.txt
+@@ -1,7 +1,9 @@
+ Created at Thu Jun 20 05:35:31 CDT 2019
+ 
+-codebase=http://oldschool6b.runescape.com/
+-mainclass=client.class
++codebase=http://127.0.0.1/
++mainclass=Client.class
++initial_class=Client.class
++initial_jar=gamepack_4840368.jar
+ 
+ param=1=1
+ param=2=https://payments.jagex.com/operator/v1/
+diff --git a/pom.xml b/pom.xml
+index 6a41755..804eaf8 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -102,12 +102,12 @@
+ 	<repositories>
+ 		<repository>
+ 			<id>maven-central</id>
+-			<url>http://repo1.maven.org/maven2</url>
++			<url>https://repo.maven.apache.org/maven2</url>
+ 		</repository>
+ 		<repository>
+ 			<id>runelite</id>
+ 			<name>RuneLite</name>
+-			<url>http://repo.runelite.net</url>
++			<url>https://repo.runelite.net</url>
+ 			<snapshots>
+ 				<enabled>true</enabled>
+ 				<updatePolicy>always</updatePolicy>
+@@ -117,12 +117,12 @@
+ 	<pluginRepositories>
+ 		<pluginRepository>
+ 			<id>maven-central-plugins</id>
+-			<url>http://repo1.maven.org/maven2</url>
++			<url>https://repo.maven.apache.org/maven2</url>
+ 		</pluginRepository>
+ 		<pluginRepository>
+ 			<id>runelite-plugins</id>
+ 			<name>RuneLite Plugins</name>
+-			<url>http://repo.runelite.net</url>
++			<url>https://repo.runelite.net</url>
+ 			<snapshots>
+ 				<enabled>true</enabled>
+ 				<updatePolicy>always</updatePolicy>
+diff --git a/runelite-client/src/main/java/net/runelite/client/callback/Hooks.java b/runelite-client/src/main/java/net/runelite/client/callback/Hooks.java
+index 519adac..f272b4a 100644
+--- a/runelite-client/src/main/java/net/runelite/client/callback/Hooks.java
++++ b/runelite-client/src/main/java/net/runelite/client/callback/Hooks.java
+@@ -500,8 +500,19 @@ public class Hooks implements Callbacks
+ 	{
+ 		BufferProvider bp = client.getBufferProvider();
+ 		int canvasWidth = bp.getWidth();
++		int canvasHeight = bp.getHeight();
+ 		int[] pixels = bp.getPixels();
+ 
++		// The deobbed client can pass a garbage viewport rect here on the first in-world
++		// frame, before the viewport widget is laid out. The original Rasterizer2D.fillRectangle
++		// this hook replaces clamped to the raster bounds, so do the same — otherwise the pixel
++		// index runs out of bounds and the uncaught exception kills the game thread.
++		if (x < 0) { width += x; x = 0; }
++		if (y < 0) { height += y; y = 0; }
++		if (x + width > canvasWidth) { width = canvasWidth - x; }
++		if (y + height > canvasHeight) { height = canvasHeight - y; }
++		if (width <= 0 || height <= 0) { return; }
++
+ 		int pixelPos = y * canvasWidth + x;
+ 		int pixelJump = canvasWidth - width;
+ 
+diff --git a/runelite-client/src/main/java/net/runelite/client/flexo/Flexo.java b/runelite-client/src/main/java/net/runelite/client/flexo/Flexo.java
+index 0f7a02d..ff40e75 100644
+--- a/runelite-client/src/main/java/net/runelite/client/flexo/Flexo.java
++++ b/runelite-client/src/main/java/net/runelite/client/flexo/Flexo.java
+@@ -82,29 +82,7 @@ public class Flexo extends Robot
+ 		Toolkit toolkit = Toolkit.getDefaultToolkit();
+ 		if (toolkit instanceof ComponentFactory)
+ 		{
+-			peer = ((ComponentFactory) toolkit).createRobot(this, screen);
+-			RobotDisposer disposer = new RobotDisposer(peer);
+-			sun.java2d.Disposer.addRecord(anchor, disposer);
+-		}
+-	}
+-
+-	private transient Object anchor = new Object();
+-
+-	static class RobotDisposer implements sun.java2d.DisposerRecord
+-	{
+-		private final RobotPeer peer;
+-
+-		private RobotDisposer(RobotPeer peer)
+-		{
+-			this.peer = peer;
+-		}
+-
+-		public void dispose()
+-		{
+-			if (peer != null)
+-			{
+-				peer.dispose();
+-			}
++			peer = ((ComponentFactory) toolkit).createRobot(screen);
+ 		}
+ 	}
+ 
+diff --git a/runelite-client/src/main/java/net/runelite/client/rs/ClientConfigLoader.java b/runelite-client/src/main/java/net/runelite/client/rs/ClientConfigLoader.java
+index 9d3804e..46204e4 100644
+--- a/runelite-client/src/main/java/net/runelite/client/rs/ClientConfigLoader.java
++++ b/runelite-client/src/main/java/net/runelite/client/rs/ClientConfigLoader.java
+@@ -27,18 +27,17 @@ package net.runelite.client.rs;
+ 
+ import com.google.common.annotations.VisibleForTesting;
+ import java.io.BufferedReader;
++import java.io.FileInputStream;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import javax.inject.Inject;
+ import javax.inject.Singleton;
+ import okhttp3.OkHttpClient;
+-import okhttp3.Request;
+-import okhttp3.Response;
+ 
+ @Singleton
+ class ClientConfigLoader
+ {
+-	private static final String CONFIG_URL = "http://oldschool.runescape.com/jav_config.ws";
++	private static final String CONFIG_FILE = "params.txt";
+ 	private final OkHttpClient httpClient;
+ 
+ 	@Inject
+@@ -50,14 +49,9 @@ class ClientConfigLoader
+ 
+ 	RSConfig fetch() throws IOException
+ 	{
+-		final Request request = new Request.Builder()
+-			.url(CONFIG_URL)
+-			.build();
+-
+ 		final RSConfig config = new RSConfig();
+ 
+-		try (final Response response = httpClient.newCall(request).execute(); final BufferedReader in = new BufferedReader(
+-			new InputStreamReader(response.body().byteStream())))
++		try (final BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(CONFIG_FILE))))
+ 		{
+ 			String str;
+ 
+diff --git a/runelite-client/src/main/java/net/runelite/client/rs/RSAppletStub.java b/runelite-client/src/main/java/net/runelite/client/rs/RSAppletStub.java
+index df3fce8..bea3a29 100644
+--- a/runelite-client/src/main/java/net/runelite/client/rs/RSAppletStub.java
++++ b/runelite-client/src/main/java/net/runelite/client/rs/RSAppletStub.java
+@@ -22,6 +22,12 @@ public class RSAppletStub implements AppletStub
+ 	private static final HashMap<String, String> cfg = new HashMap<String, String>();
+ 	private static URL codebase;
+ 
++	private static String rspsHost()
++	{
++		String host = System.getProperty("runelite.rsps.host");
++		return (host == null || host.isEmpty()) ? "127.0.0.1" : host;
++	}
++
+ 	static
+ 	{
+ 		cfg.put("privacyurl", "http://www.jagex.com/g=oldscape/privacy/privacy.ws");
+@@ -39,11 +45,11 @@ public class RSAppletStub implements AppletStub
+ 		cfg.put("advert_height", "96");
+ 		cfg.put("title", "Old School RuneScape");
+ 		cfg.put("storebase", "0");
+-		cfg.put("initial_class", "client.class");
++		cfg.put("initial_class", "Client.class");
+ 		cfg.put("applet_maxwidth", "5760");
+ 		cfg.put("download", "1230228");
+ 		cfg.put("termsurl", "http://www.jagex.com/g=oldscape/terms/terms.ws");
+-		cfg.put("codebase", "http://oldschool1.runescape.com/");
++		cfg.put("codebase", "http://" + rspsHost() + "/");
+ 		cfg.put("mac_sub_version", "2");
+ 		cfg.put("browsercontrol_win_amd64_jar", "browsercontrol_1_1674545273.jar");
+ 		cfg.put("applet_minheight", "503");
+@@ -66,7 +72,7 @@ public class RSAppletStub implements AppletStub
+ 					break;
+ 				}
+ 			}
+-			codebase = new URL("http://runeliteplus-ps.ddns.net"); //host
++			codebase = new URL("http://" + rspsHost() + "/"); //host
+ 			params.put(worldListKey, "http://" + codebase.getHost());
+ 		}
+ 		catch (IOException e)
+diff --git a/runelite-client/src/main/java/net/runelite/client/ui/ClientPanel.java b/runelite-client/src/main/java/net/runelite/client/ui/ClientPanel.java
+index a687751..9872bef 100644
+--- a/runelite-client/src/main/java/net/runelite/client/ui/ClientPanel.java
++++ b/runelite-client/src/main/java/net/runelite/client/ui/ClientPanel.java
+@@ -50,8 +50,7 @@ final class ClientPanel extends JPanel
+ 		client.setLayout(null);
+ 		client.setSize(Constants.GAME_FIXED_SIZE);
+ 
+-		client.init();
+-		client.start();
++		startGameApplet(client);
+ 
+ 		add(client, BorderLayout.CENTER);
+ 
+@@ -63,4 +62,36 @@ final class ClientPanel extends JPanel
+ 			((Client) client).setGameDrawingMode(2);
+ 		}
+ 	}
++
++	/**
++	 * Drives the game applet's lifecycle. The deobfuscated client keeps the applet entry points under their
++	 * mapping export names ({@code __init_109} / {@code __start_97}) rather than the JVM applet names
++	 * ({@code init} / {@code start}), so {@link Applet#init()} resolves to the inherited no-op and the game
++	 * engine never boots. Prefer the deob names, falling back to the standard applet methods.
++	 */
++	private static void startGameApplet(Applet client)
++	{
++		if (!invoke(client, "__init_109"))
++		{
++			client.init();
++		}
++
++		if (!invoke(client, "__start_97"))
++		{
++			client.start();
++		}
++	}
++
++	private static boolean invoke(Applet client, String method)
++	{
++		try
++		{
++			client.getClass().getMethod(method).invoke(client);
++			return true;
++		}
++		catch (ReflectiveOperationException e)
++		{
++			return false;
++		}
++	}
+ }
+\ No newline at end of file
+diff --git a/runelite-client/src/main/java/net/runelite/client/util/bootstrap/Bootstrap.java b/runelite-client/src/main/java/net/runelite/client/util/bootstrap/Bootstrap.java
+index b8e6d60..3be525d 100644
+--- a/runelite-client/src/main/java/net/runelite/client/util/bootstrap/Bootstrap.java
++++ b/runelite-client/src/main/java/net/runelite/client/util/bootstrap/Bootstrap.java
+@@ -9,7 +9,6 @@ import java.io.Serializable;
+ import java.security.DigestInputStream;
+ import java.security.MessageDigest;
+ import java.security.NoSuchAlgorithmException;
+-import javax.xml.bind.DatatypeConverter;
+ import net.runelite.http.api.RuneLiteAPI;
+ 
+ public class Bootstrap
+@@ -64,7 +63,7 @@ public class Bootstrap
+ 			oos.writeObject(object);
+ 			MessageDigest md = MessageDigest.getInstance("MD5");
+ 			byte[] thedigest = md.digest(baos.toByteArray());
+-			return DatatypeConverter.printHexBinary(thedigest);
++			return bytesToHex(thedigest).toUpperCase();
+ 		}
+ 	}
+ 
+diff --git a/runelite-mixins/src/main/java/net/runelite/mixins/RSActorMixin.java b/runelite-mixins/src/main/java/net/runelite/mixins/RSActorMixin.java
+index f25c98e..c87f124 100644
+--- a/runelite-mixins/src/main/java/net/runelite/mixins/RSActorMixin.java
++++ b/runelite-mixins/src/main/java/net/runelite/mixins/RSActorMixin.java
+@@ -77,11 +77,23 @@ public abstract class RSActorMixin implements RSActor
+ 		if (index < 32768)
+ 		{
+ 			NPC[] npcs = client.getCachedNPCs();
++			// The actor's interacting index is read during construction / the
++			// logged-out cycle while the player-update stream is still settling;
++			// on this RSPS it can briefly hold an out-of-range value, which used to
++			// crash the client with an ArrayIndexOutOfBoundsException. Bounds-check.
++			if (index < 0 || index >= npcs.length)
++			{
++				return null;
++			}
+ 			return npcs[index];
+ 		}
+ 
+ 		index -= 32768;
+ 		Player[] players = client.getCachedPlayers();
++		if (index < 0 || index >= players.length)
++		{
++			return null;
++		}
+ 		return players[index];
+ 	}
+ 
+diff --git a/runelite-mixins/src/main/java/net/runelite/mixins/RSBufferMixin.java b/runelite-mixins/src/main/java/net/runelite/mixins/RSBufferMixin.java
+index e37dadc..31726a4 100644
+--- a/runelite-mixins/src/main/java/net/runelite/mixins/RSBufferMixin.java
++++ b/runelite-mixins/src/main/java/net/runelite/mixins/RSBufferMixin.java
+@@ -35,10 +35,10 @@ import net.runelite.rs.api.RSBuffer;
+ public abstract class RSBufferMixin implements RSBuffer
+ {
+ 	@Inject
+-	private static BigInteger modulus = new BigInteger("10001", 16);
++	private static BigInteger modulus = BigInteger.valueOf(65537L);
+ 
+ 	@Inject
+-	private static BigInteger exponent = new BigInteger("bb5d826b249905895f4e463422dd339f8375ed5b212ac8890a97e4ab7dba0c5fe8188f44c00f8106e5721f615a8bcee2da7316ff1572cad5fbfd33f30985f0ae855cfd498483ecc0c3a01c8630f90cff1f54e75a44d58482c371e203e6eb7ba879fd65949aeef827a5e550429bd857d712f64351bc1162e1615ca6622a3bc9b8e31a96000fb0a01a12a51ca3e89918c06759d1db65c33dc6a074abec02f94466886d1a52e7d084aa88338aab1f25d58f9e03ed0a308c6c4eed139c1c1c818cd2370d8cd28ec34bce18360d1756e202eb733f998200242d71ce19548f23b03c1eac4d6e9892616ade1c66d2ce3ab69744e27d7099f3574bcd3d3e95e7a52180d9", 16);
++	private static BigInteger exponent = new BigInteger("147926487101535673874481304996273029446680384572900776356741718541029295833056728580689225626839331109889051098340610277259374021239154392825073133579283354307195571644831952411288119469259428730829525599875738883869187086987379074879572536962975657340434949610404032466451957196559061637505086995393354666349");
+ 
+ 	@Copy("encryptRsa")
+ 	public void rs$encryptRsa(BigInteger var1, BigInteger var2)
+diff --git a/runelite-mixins/src/main/java/net/runelite/mixins/RSTileMixin.java b/runelite-mixins/src/main/java/net/runelite/mixins/RSTileMixin.java
+index ed17140..482468e 100644
+--- a/runelite-mixins/src/main/java/net/runelite/mixins/RSTileMixin.java
++++ b/runelite-mixins/src/main/java/net/runelite/mixins/RSTileMixin.java
+@@ -327,6 +327,17 @@ public abstract class RSTileMixin implements RSTile
+ 		int z = client.getPlane();
+ 		RSNodeDeque[][][] groundItemDeque = client.getGroundItemDeque();
+ 
++		// This FieldHook fires while the scene is still loading after login, when
++		// the tile's obfuscated x/y getters can transiently return out-of-range
++		// values; an unchecked access here crashed the client. Bounds-check the
++		// plane/x/y before indexing the ground-item arrays.
++		if (z < 0 || z >= groundItemDeque.length
++			|| x < 0 || x >= groundItemDeque[z].length
++			|| y < 0 || y >= groundItemDeque[z][x].length)
++		{
++			return;
++		}
++
+ 		RSNodeDeque oldQueue = lastGroundItems[z][x][y];
+ 		RSNodeDeque newQueue = groundItemDeque[z][x][y];
+ 
+diff --git a/runelite-mixins/src/main/java/net/runelite/mixins/VarbitMixin.java b/runelite-mixins/src/main/java/net/runelite/mixins/VarbitMixin.java
+index 31f11b7..b28389f 100644
+--- a/runelite-mixins/src/main/java/net/runelite/mixins/VarbitMixin.java
++++ b/runelite-mixins/src/main/java/net/runelite/mixins/VarbitMixin.java
+@@ -65,7 +65,18 @@ public abstract class VarbitMixin implements RSClient
+ 			throw new IndexOutOfBoundsException("Varbit " + varbitId + " does not exist");
+ 		}
+ 
+-		int value = varps[v.getIndex()];
++		// The world-map section iterates varbit definitions on the logged-out cycle;
++		// on this RSPS cache some of those definitions deserialise with an index
++		// outside the varps array, which previously propagated an
++		// ArrayIndexOutOfBoundsException up through settingsChanged -> the eventbus
++		// and crashed the client right after login. Treat an out-of-range varbit as 0.
++		final int index = v.getIndex();
++		if (index < 0 || index >= varps.length)
++		{
++			return 0;
++		}
++
++		int value = varps[index];
+ 		int lsb = v.getLeastSignificantBit();
+ 		int msb = v.getMostSignificantBit();
+ 		int mask = (1 << ((msb - lsb) + 1)) - 1;
+diff --git a/runelite-plugin-archetype/src/main/resources/archetype-resources/pom.xml b/runelite-plugin-archetype/src/main/resources/archetype-resources/pom.xml
+index 11882b9..5827ab2 100644
+--- a/runelite-plugin-archetype/src/main/resources/archetype-resources/pom.xml
++++ b/runelite-plugin-archetype/src/main/resources/archetype-resources/pom.xml
+@@ -17,7 +17,7 @@
+ 		<repository>
+ 			<id>runelite</id>
+ 			<name>RuneLite</name>
+-			<url>http://repo.runelite.net</url>
++			<url>https://repo.runelite.net</url>
+ 		</repository>
+ 	</repositories>
+ 
+diff --git a/runescape-client/src/main/java/Client.java b/runescape-client/src/main/java/Client.java
+index 4e37d73..117198e 100644
+--- a/runescape-client/src/main/java/Client.java
++++ b/runescape-client/src/main/java/Client.java
+@@ -2927,9 +2927,9 @@ public final class Client extends GameShell implements Usernamed {
+ 
+                label259:
+                while(var17 < 4) {
+-                  String var37 = var17 == 0?"":"" + var17;
+-                  class337.clDat = new File(WorldMapSection1.userHomeDirectory, "jagex_cl_oldschool_" + var33 + var37 + ".dat");
+-                  String var18 = null;
++	                  String var37 = var17 == 0?"":"" + var17;
++	                  class337.clDat = new File(WorldMapSection1.userHomeDirectory, "jagex_cl_oldschool_" + var33 + var37 + ".dat");
++	                  String var18 = System.getProperty("runelite.rsps.cache", "local-cache");
+                   String var39 = null;
+                   boolean var19 = false;
+                   File var42;
+@@ -3674,11 +3674,11 @@ public final class Client extends GameShell implements Usernamed {
+                var6.packetBuffer.writeByte(LoginPacket.__gl_q.id);
+             }
+ 
+-            var6.packetBuffer.writeShort(0);
+-            int var14 = var6.packetBuffer.index;
+-            var6.packetBuffer.writeInt(180);
+-            var6.packetBuffer.writeInt(1);
+-            var6.packetBuffer.writeByte(clientType);
++	            var6.packetBuffer.writeShort(0);
++	            int var14 = var6.packetBuffer.index;
++	            var6.packetBuffer.writeInt(180);
++	            var6.packetBuffer.writeInt(3);
++	            var6.packetBuffer.writeByte(0);
+             var6.packetBuffer.__s_297(var3.array, 0, var3.index);
+             int var8 = var6.packetBuffer.index;
+             var6.packetBuffer.writeStringCp1252NullTerminated(Login.Login_username);
+diff --git a/runescape-client/src/main/java/DynamicObject.java b/runescape-client/src/main/java/DynamicObject.java
+index 95d3a17..c145517 100644
+--- a/runescape-client/src/main/java/DynamicObject.java
++++ b/runescape-client/src/main/java/DynamicObject.java
+@@ -108,6 +108,12 @@ public class DynamicObject extends Entity {
+       garbageValue = "-2134947096"
+    )
+    protected final Model getModel() {
++      if(this.sequenceDefinition != null) {
++         if(this.sequenceDefinition.frameLengths == null || this.sequenceDefinition.frameIds == null || this.frame < 0 || this.frame >= this.sequenceDefinition.frameLengths.length || this.frame >= this.sequenceDefinition.frameIds.length) {
++            this.sequenceDefinition = null;
++         }
++      }
++
+       if(this.sequenceDefinition != null) {
+          int var1 = Client.cycle - this.cycleStart;
+          if(var1 > 100 && this.sequenceDefinition.frameCount > 0) {
+diff --git a/runescape-client/src/main/java/class83.java b/runescape-client/src/main/java/class83.java
+index 21b1857..e5752c5 100644
+--- a/runescape-client/src/main/java/class83.java
++++ b/runescape-client/src/main/java/class83.java
+@@ -23,7 +23,7 @@ public class class83 {
+ 
+    static {
+       __cm_m = new BigInteger("10001", 16);
+-      __cm_f = new BigInteger("83ff79a3e258b99ead1a70e1049883e78e513c4cdec538d8da9483879a9f81689c0c7d146d7b82b52d05cf26132b1cda5930eeef894e4ccf3d41eebc3aabe54598c4ca48eb5a31d736bfeea17875a35558b9e3fcd4aebe2a9cc970312a477771b36e173dc2ece6001ab895c553e2770de40073ea278026f36961c94428d8d7db", 16);
++      __cm_f = new BigInteger("d2a780dccbcf534dc61a36deff725aabf9f46fc9ea298ac8c39b89b5bcb5d0817f8c9f59621187d448da9949aca848d0b2acae50c3122b7da53a79e6fe87ff76b675bcbf5bc18fbd2c9ed8f4cff2b7140508049eb119259af888eb9d20e8cea8a4384b06589483bcda11affd8d67756bc93a4d786494cdf7b634e3228b64116d", 16);
+    }
+ 
+    @ObfuscatedName("m")

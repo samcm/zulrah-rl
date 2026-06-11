@@ -1,0 +1,11 @@
+# Dashboard backend deps (install into the repo venv: .venv/)
+#   .venv/bin/pip install -r ui/requirements.txt
+#
+# Launch the backend:
+#   .venv/bin/python -m uvicorn ui.server:app --host 127.0.0.1 --port 8200
+#
+# Versions below are what was installed/verified into the venv. stable_baselines3, gymnasium and
+# numpy are already provided by the project venv (used by env/ + eval/watch.py) and are not pinned here.
+fastapi==0.136.3
+uvicorn==0.49.0
+websockets==16.0

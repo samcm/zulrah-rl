@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zulrah RL · Observatory</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.min.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ====================== HEADER ====================== -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="snake"></span>
+        </div>
+        <div class="brand-text">
+          <h1>Zulrah <span class="accent">RL</span></h1>
+          <p class="subtitle">live policy observatory</p>
+        </div>
+      </div>
+
+      <div class="header-stats" id="header-stats">
+        <div class="hstat">
+          <span class="hstat-label">model</span>
+          <span class="hstat-value mono" id="hs-model">—</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">episode</span>
+          <span class="hstat-value" id="hs-episode">—</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">kills</span>
+          <span class="hstat-value good" id="hs-kills">—</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">tick</span>
+          <span class="hstat-value mono" id="hs-tick">—</span>
+        </div>
+      </div>
+
+      <div class="conn" id="conn">
+        <span class="dot" id="conn-dot"></span>
+        <span id="conn-label">connecting…</span>
+      </div>
+    </header>
+
+    <!-- ====================== MAIN GRID ====================== -->
+    <main class="layout">
+
+      <!-- ---------- LEFT: ARENA HERO ---------- -->
+      <section class="panel arena-panel">
+        <div class="panel-head">
+          <h2>Arena</h2>
+          <div class="panel-head-right">
+            <span class="action-chip" id="action-chip">
+              <span class="action-chip-label">action</span>
+              <span class="action-chip-value mono" id="action-name">—</span>
+            </span>
+            <span class="reward-chip" id="reward-chip">
+              <span class="reward-chip-label">reward</span>
+              <span class="reward-chip-value mono" id="reward-val">0.00</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="arena-stage" id="arena-stage">
+          <canvas id="arena" width="780" height="668"></canvas>
+
+          <!-- HUD overlay -->
+          <div class="hud">
+            <div class="hud-top">
+              <div class="bars">
+                <div class="bar-group">
+                  <div class="bar-label"><span>HP</span><span class="mono" id="hp-text">—</span></div>
+                  <div class="bar-track"><div class="bar-fill hp" id="hp-fill"></div></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar-label"><span>Prayer</span><span class="mono" id="pray-text">—</span></div>
+                  <div class="bar-track"><div class="bar-fill prayer" id="pray-fill"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hud-bottom">
+              <div class="hud-tags">
+                <span class="tag" id="tag-form">
+                  <span class="tag-k">form</span><span class="tag-v" id="form-val">—</span>
+                </span>
+                <span class="tag pray-badge" id="pray-badge">
+                  <span class="tag-v" id="pray-badge-val">—</span>
+                </span>
+                <span class="tag" id="tag-style">
+                  <span class="tag-k">style</span><span class="tag-v" id="style-val">—</span>
+                </span>
+                <span class="tag" id="tag-lasthit">
+                  <span class="tag-k">last hit</span><span class="tag-v" id="lasthit-val">—</span>
+                </span>
+                <span class="tag" id="tag-pool">
+                  <span class="tag-k">pool</span><span class="tag-v" id="pool-val">—</span>
+                </span>
+                <span class="tag" id="tag-venom" hidden>
+                  <span class="tag-v">venomed</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- outcome banner -->
+          <div class="banner" id="banner" hidden>
+            <span id="banner-text">KILL</span>
+          </div>
+
+          <!-- empty / waiting state -->
+          <div class="arena-empty" id="arena-empty">
+            <div class="spinner"></div>
+            <p>waiting for the watcher bot…</p>
+            <p class="dim small">connecting to the live policy stream</p>
+          </div>
+        </div>
+
+        <!-- inventory -->
+        <div class="inv">
+          <div class="inv-head">
+            <h3>Inventory</h3>
+            <span class="dim small mono" id="inv-weapon"></span>
+          </div>
+          <div class="inv-grid" id="inv-grid"></div>
+        </div>
+      </section>
+
+      <!-- ---------- RIGHT: STATS + CHARTS ---------- -->
+      <aside class="side">
+        <!-- stat tiles -->
+        <div class="tiles">
+          <div class="tile">
+            <span class="tile-label">kill rate</span>
+            <span class="tile-value good" id="t-killrate">—</span>
+            <span class="tile-sub" id="t-killrate-sub">of episodes</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">steps</span>
+            <span class="tile-value" id="t-steps">—</span>
+            <span class="tile-sub">timesteps</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">fps</span>
+            <span class="tile-value" id="t-fps">—</span>
+            <span class="tile-sub">rollout</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">ep len</span>
+            <span class="tile-value" id="t-eplen">—</span>
+            <span class="tile-sub">mean ticks</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">entropy</span>
+            <span class="tile-value" id="t-entropy">—</span>
+            <span class="tile-sub" id="t-entropy-sub">policy</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">ep reward</span>
+            <span class="tile-value" id="t-rew">—</span>
+            <span class="tile-sub">mean</span>
+          </div>
+        </div>
+
+        <!-- live 3D client: its own sized card above the charts grid (kept out of the grid so it can't overflow onto the charts) -->
+        <div class="panel client3d-card" id="client3d-panel">
+          <div class="panel-head sm">
+            <h3>3D View <span class="dim">· spectated client</span></h3>
+            <span class="conn sm" id="client3d-status"><span class="dot" id="client3d-dot"></span><span id="client3d-label">offline</span></span>
+          </div>
+          <div class="client3d-stage" id="client3d-stage">
+            <img id="client3d-img" alt="spectated 3D client view" />
+            <div class="client3d-empty" id="client3d-empty">
+              <p class="dim small">no client frame yet</p>
+              <p class="dim small">start the headless client container (client/docker/run.sh)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- charts -->
+        <div class="charts">
+
+          <div class="panel chart-panel">
+            <div class="panel-head sm">
+              <h3>Kill rate</h3>
+              <span class="chart-legend"><i class="lg-live"></i>live<i class="lg-hist"></i>history</span>
+            </div>
+            <div class="chart" id="chart-killrate"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-head sm">
+              <h3>Episode reward <span class="dim">mean</span></h3>
+            </div>
+            <div class="chart" id="chart-rew"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-head sm">
+              <h3>The hill <span class="dim">· Zulrah min HP · down = better</span></h3>
+            </div>
+            <div class="chart" id="chart-hill"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-head sm">
+              <h3>Entropy loss <span class="dim" id="entcoef-tag"></span></h3>
+            </div>
+            <div class="chart" id="chart-entropy"></div>
+          </div>
+
+          <div class="panel chart-panel wide">
+            <div class="panel-head sm">
+              <h3>Reward components <span class="dim">· per kill</span></h3>
+              <span class="chart-legend" id="rewcomp-legend"></span>
+            </div>
+            <div class="chart" id="chart-rewcomp"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span class="dim">Zulrah RL observatory</span>
+      <span class="dim mono" id="footer-run">—</span>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.iife.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

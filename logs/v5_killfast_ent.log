@@ -1,0 +1,1623 @@
+./.venv/lib/python3.13/site-packages/stable_baselines3/common/vec_env/vec_monitor.py:43: UserWarning: The environment is already wrapped with a `Monitor` wrapperbut you are wrapping it with a `VecMonitor` wrapper, the `Monitor` statistics will beoverwritten by the `VecMonitor` ones.
+Using cpu device
+Logging to runs/ppo_v5_1
+------------------------------------
+| reward_components/    |          |
+|    dmg_dealt          | 0.0453   |
+|    kill               | 0        |
+| rollout/              |          |
+|    ep_len_mean        | 8.93     |
+|    ep_rew_mean        | 0.237    |
+| time/                 |          |
+|    fps                | 235      |
+|    iterations         | 1        |
+|    time_elapsed       | 34       |
+|    total_timesteps    | 8192     |
+| zulrah/               |          |
+|    death_rate         | 1        |
+|    ep_length_mean     | 8.93     |
+|    ep_reward_mean     | 0.237    |
+|    kill_rate          | 0        |
+|    left_rate          | 0        |
+|    timeout_rate       | 0        |
+|    zulrah_min_hp_mean | 494      |
+------------------------------------
+----------------------------------------
+| reward_components/      |            |
+|    dmg_dealt            | 0.0488     |
+|    kill                 | 0          |
+| rollout/                |            |
+|    ep_len_mean          | 20.4       |
+|    ep_rew_mean          | 1.42       |
+| time/                   |            |
+|    fps                  | 253        |
+|    iterations           | 2          |
+|    time_elapsed         | 64         |
+|    total_timesteps      | 16384      |
+| train/                  |            |
+|    approx_kl            | 0.01170182 |
+|    clip_fraction        | 0.119      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | -2.56      |
+|    explained_variance   | 0.0196     |
+|    learning_rate        | 0.0003     |
+|    loss                 | 0.183      |
+|    n_updates            | 10         |
+|    policy_gradient_loss | -0.0153    |
+|    value_loss           | 0.596      |
+| zulrah/                 |            |
+|    death_rate           | 0.99       |
+|    ep_length_mean       | 20.4       |
+|    ep_reward_mean       | 1.42       |
+|    kill_rate            | 0          |
+|    left_rate            | 0.01       |
+|    timeout_rate         | 0          |
+|    zulrah_min_hp_mean   | 465        |
+----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.0594       |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 27.3         |
+|    ep_rew_mean          | 1.85         |
+| time/                   |              |
+|    fps                  | 277          |
+|    iterations           | 3            |
+|    time_elapsed         | 88           |
+|    total_timesteps      | 24576        |
+| train/                  |              |
+|    approx_kl            | 0.0107605215 |
+|    clip_fraction        | 0.112        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.53        |
+|    explained_variance   | 0.248        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.313        |
+|    n_updates            | 20           |
+|    policy_gradient_loss | -0.0158      |
+|    value_loss           | 0.685        |
+| zulrah/                 |              |
+|    death_rate           | 0.98         |
+|    ep_length_mean       | 27.3         |
+|    ep_reward_mean       | 1.85         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.01         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 454          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.0561      |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 22.3        |
+|    ep_rew_mean          | 1.39        |
+| time/                   |             |
+|    fps                  | 298         |
+|    iterations           | 4           |
+|    time_elapsed         | 109         |
+|    total_timesteps      | 32768       |
+| train/                  |             |
+|    approx_kl            | 0.010132037 |
+|    clip_fraction        | 0.109       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.51       |
+|    explained_variance   | 0.36        |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.383       |
+|    n_updates            | 30          |
+|    policy_gradient_loss | -0.0158     |
+|    value_loss           | 0.94        |
+| zulrah/                 |             |
+|    death_rate           | 0.96        |
+|    ep_length_mean       | 22.3        |
+|    ep_reward_mean       | 1.39        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.03        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 465         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.0762       |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 23           |
+|    ep_rew_mean          | 1.16         |
+| time/                   |              |
+|    fps                  | 291          |
+|    iterations           | 5            |
+|    time_elapsed         | 140          |
+|    total_timesteps      | 40960        |
+| train/                  |              |
+|    approx_kl            | 0.0114259105 |
+|    clip_fraction        | 0.119        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.49        |
+|    explained_variance   | 0.413        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.299        |
+|    n_updates            | 40           |
+|    policy_gradient_loss | -0.018       |
+|    value_loss           | 0.782        |
+| zulrah/                 |              |
+|    death_rate           | 0.94         |
+|    ep_length_mean       | 23           |
+|    ep_reward_mean       | 1.16         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.04         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 471          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.0977      |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 19.8        |
+|    ep_rew_mean          | 2.57        |
+| time/                   |             |
+|    fps                  | 311         |
+|    iterations           | 6           |
+|    time_elapsed         | 157         |
+|    total_timesteps      | 49152       |
+| train/                  |             |
+|    approx_kl            | 0.009146854 |
+|    clip_fraction        | 0.101       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.45       |
+|    explained_variance   | 0.461       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.3         |
+|    n_updates            | 50          |
+|    policy_gradient_loss | -0.0153     |
+|    value_loss           | 1.06        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 19.8        |
+|    ep_reward_mean       | 2.57        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 436         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.0965       |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 25           |
+|    ep_rew_mean          | 1.56         |
+| time/                   |              |
+|    fps                  | 318          |
+|    iterations           | 7            |
+|    time_elapsed         | 179          |
+|    total_timesteps      | 57344        |
+| train/                  |              |
+|    approx_kl            | 0.0092584025 |
+|    clip_fraction        | 0.0962       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.42        |
+|    explained_variance   | 0.54         |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.361        |
+|    n_updates            | 60           |
+|    policy_gradient_loss | -0.0131      |
+|    value_loss           | 1.28         |
+| zulrah/                 |              |
+|    death_rate           | 0.94         |
+|    ep_length_mean       | 25           |
+|    ep_reward_mean       | 1.56         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.04         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 461          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.11        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 31.2        |
+|    ep_rew_mean          | 2.82        |
+| time/                   |             |
+|    fps                  | 321         |
+|    iterations           | 8           |
+|    time_elapsed         | 204         |
+|    total_timesteps      | 65536       |
+| train/                  |             |
+|    approx_kl            | 0.008448745 |
+|    clip_fraction        | 0.0792      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.39       |
+|    explained_variance   | 0.609       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.736       |
+|    n_updates            | 70          |
+|    policy_gradient_loss | -0.0131     |
+|    value_loss           | 1.4         |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 31.2        |
+|    ep_reward_mean       | 2.82        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 430         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.125       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 33          |
+|    ep_rew_mean          | 2.33        |
+| time/                   |             |
+|    fps                  | 323         |
+|    iterations           | 9           |
+|    time_elapsed         | 228         |
+|    total_timesteps      | 73728       |
+| train/                  |             |
+|    approx_kl            | 0.009257196 |
+|    clip_fraction        | 0.0874      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.33       |
+|    explained_variance   | 0.652       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.619       |
+|    n_updates            | 80          |
+|    policy_gradient_loss | -0.0126     |
+|    value_loss           | 1.42        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 33          |
+|    ep_reward_mean       | 2.33        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 442         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.133       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 18          |
+|    ep_rew_mean          | 2.97        |
+| time/                   |             |
+|    fps                  | 316         |
+|    iterations           | 10          |
+|    time_elapsed         | 258         |
+|    total_timesteps      | 81920       |
+| train/                  |             |
+|    approx_kl            | 0.008324007 |
+|    clip_fraction        | 0.0658      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.29       |
+|    explained_variance   | 0.651       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.697       |
+|    n_updates            | 90          |
+|    policy_gradient_loss | -0.00863    |
+|    value_loss           | 1.63        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 18          |
+|    ep_reward_mean       | 2.97        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.05        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 426         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.153       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 30          |
+|    ep_rew_mean          | 3.88        |
+| time/                   |             |
+|    fps                  | 319         |
+|    iterations           | 11          |
+|    time_elapsed         | 281         |
+|    total_timesteps      | 90112       |
+| train/                  |             |
+|    approx_kl            | 0.008411525 |
+|    clip_fraction        | 0.0909      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.18       |
+|    explained_variance   | 0.478       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.772       |
+|    n_updates            | 100         |
+|    policy_gradient_loss | -0.014      |
+|    value_loss           | 1.93        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 30          |
+|    ep_reward_mean       | 3.88        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 403         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.11        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 40.1        |
+|    ep_rew_mean          | 4.88        |
+| time/                   |             |
+|    fps                  | 321         |
+|    iterations           | 12          |
+|    time_elapsed         | 305         |
+|    total_timesteps      | 98304       |
+| train/                  |             |
+|    approx_kl            | 0.010107512 |
+|    clip_fraction        | 0.0849      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.17       |
+|    explained_variance   | 0.596       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.907       |
+|    n_updates            | 110         |
+|    policy_gradient_loss | -0.00987    |
+|    value_loss           | 2.1         |
+| zulrah/                 |             |
+|    death_rate           | 0.93        |
+|    ep_length_mean       | 40.1        |
+|    ep_reward_mean       | 4.88        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.05        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 378         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.128       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 27.7        |
+|    ep_rew_mean          | 2.74        |
+| time/                   |             |
+|    fps                  | 315         |
+|    iterations           | 13          |
+|    time_elapsed         | 337         |
+|    total_timesteps      | 106496      |
+| train/                  |             |
+|    approx_kl            | 0.008864554 |
+|    clip_fraction        | 0.0658      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.2        |
+|    explained_variance   | 0.651       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.443       |
+|    n_updates            | 120         |
+|    policy_gradient_loss | -0.00721    |
+|    value_loss           | 1.51        |
+| zulrah/                 |             |
+|    death_rate           | 0.94        |
+|    ep_length_mean       | 27.7        |
+|    ep_reward_mean       | 2.74        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.04        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 432         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.129       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 37.8        |
+|    ep_rew_mean          | 4.79        |
+| time/                   |             |
+|    fps                  | 323         |
+|    iterations           | 14          |
+|    time_elapsed         | 355         |
+|    total_timesteps      | 114688      |
+| train/                  |             |
+|    approx_kl            | 0.008071046 |
+|    clip_fraction        | 0.0744      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.09       |
+|    explained_variance   | 0.568       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.72        |
+|    n_updates            | 130         |
+|    policy_gradient_loss | -0.011      |
+|    value_loss           | 1.98        |
+| zulrah/                 |             |
+|    death_rate           | 0.94        |
+|    ep_length_mean       | 37.8        |
+|    ep_reward_mean       | 4.79        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.04        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 380         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.125        |
+|    kill                 | 0.00819      |
+| rollout/                |              |
+|    ep_len_mean          | 38.6         |
+|    ep_rew_mean          | 6.42         |
+| time/                   |              |
+|    fps                  | 328          |
+|    iterations           | 15           |
+|    time_elapsed         | 373          |
+|    total_timesteps      | 122880       |
+| train/                  |              |
+|    approx_kl            | 0.0062124906 |
+|    clip_fraction        | 0.0521       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.11        |
+|    explained_variance   | 0.69         |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.797        |
+|    n_updates            | 140          |
+|    policy_gradient_loss | -0.00405     |
+|    value_loss           | 1.74         |
+| zulrah/                 |              |
+|    death_rate           | 0.96         |
+|    ep_length_mean       | 38.6         |
+|    ep_reward_mean       | 6.42         |
+|    kill_rate            | 0.01         |
+|    left_rate            | 0.02         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 357          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.155       |
+|    kill                 | 0.00851     |
+| rollout/                |             |
+|    ep_len_mean          | 35.1        |
+|    ep_rew_mean          | 6           |
+| time/                   |             |
+|    fps                  | 331         |
+|    iterations           | 16          |
+|    time_elapsed         | 395         |
+|    total_timesteps      | 131072      |
+| train/                  |             |
+|    approx_kl            | 0.007476686 |
+|    clip_fraction        | 0.0582      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.11       |
+|    explained_variance   | 0.403       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 14.2        |
+|    n_updates            | 150         |
+|    policy_gradient_loss | -0.00727    |
+|    value_loss           | 6.27        |
+| zulrah/                 |             |
+|    death_rate           | 0.93        |
+|    ep_length_mean       | 35.1        |
+|    ep_reward_mean       | 6           |
+|    kill_rate            | 0.01        |
+|    left_rate            | 0.04        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 368         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.119        |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 39.7         |
+|    ep_rew_mean          | 5.57         |
+| time/                   |              |
+|    fps                  | 334          |
+|    iterations           | 17           |
+|    time_elapsed         | 416          |
+|    total_timesteps      | 139264       |
+| train/                  |              |
+|    approx_kl            | 0.0052538365 |
+|    clip_fraction        | 0.049        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.03        |
+|    explained_variance   | 0.432        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 3.32         |
+|    n_updates            | 160          |
+|    policy_gradient_loss | -0.00421     |
+|    value_loss           | 7.38         |
+| zulrah/                 |              |
+|    death_rate           | 0.96         |
+|    ep_length_mean       | 39.7         |
+|    ep_reward_mean       | 5.57         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.03         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 361          |
+------------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.116        |
+|    kill                 | 0.00847      |
+| rollout/                |              |
+|    ep_len_mean          | 75           |
+|    ep_rew_mean          | 8.69         |
+| time/                   |              |
+|    fps                  | 340          |
+|    iterations           | 18           |
+|    time_elapsed         | 433          |
+|    total_timesteps      | 147456       |
+| train/                  |              |
+|    approx_kl            | 0.0070883343 |
+|    clip_fraction        | 0.0746       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.08        |
+|    explained_variance   | 0.62         |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.703        |
+|    n_updates            | 170          |
+|    policy_gradient_loss | -0.00613     |
+|    value_loss           | 1.84         |
+| zulrah/                 |              |
+|    death_rate           | 0.92         |
+|    ep_length_mean       | 75           |
+|    ep_reward_mean       | 8.69         |
+|    kill_rate            | 0.01         |
+|    left_rate            | 0.02         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 301          |
+------------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.123        |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 48.1         |
+|    ep_rew_mean          | 5.8          |
+| time/                   |              |
+|    fps                  | 341          |
+|    iterations           | 19           |
+|    time_elapsed         | 455          |
+|    total_timesteps      | 155648       |
+| train/                  |              |
+|    approx_kl            | 0.0059922594 |
+|    clip_fraction        | 0.039        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.15        |
+|    explained_variance   | 0.434        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 4.6          |
+|    n_updates            | 180          |
+|    policy_gradient_loss | -0.00385     |
+|    value_loss           | 6.04         |
+| zulrah/                 |              |
+|    death_rate           | 0.96         |
+|    ep_length_mean       | 48.1         |
+|    ep_reward_mean       | 5.8          |
+|    kill_rate            | 0            |
+|    left_rate            | 0.02         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 356          |
+------------------------------------------
+----------------------------------------
+| reward_components/      |            |
+|    dmg_dealt            | 0.196      |
+|    kill                 | 0.00859    |
+| rollout/                |            |
+|    ep_len_mean          | 25         |
+|    ep_rew_mean          | 5.63       |
+| time/                   |            |
+|    fps                  | 342        |
+|    iterations           | 20         |
+|    time_elapsed         | 478        |
+|    total_timesteps      | 163840     |
+| train/                  |            |
+|    approx_kl            | 0.00716366 |
+|    clip_fraction        | 0.0642     |
+|    clip_range           | 0.2        |
+|    entropy_loss         | -2.08      |
+|    explained_variance   | 0.694      |
+|    learning_rate        | 0.0003     |
+|    loss                 | 1.22       |
+|    n_updates            | 190        |
+|    policy_gradient_loss | -0.00587   |
+|    value_loss           | 1.9        |
+| zulrah/                 |            |
+|    death_rate           | 0.98       |
+|    ep_length_mean       | 25         |
+|    ep_reward_mean       | 5.63       |
+|    kill_rate            | 0.01       |
+|    left_rate            | 0.01       |
+|    timeout_rate         | 0          |
+|    zulrah_min_hp_mean   | 377        |
+----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.147       |
+|    kill                 | 0.0336      |
+| rollout/                |             |
+|    ep_len_mean          | 33.7        |
+|    ep_rew_mean          | 4.91        |
+| time/                   |             |
+|    fps                  | 344         |
+|    iterations           | 21          |
+|    time_elapsed         | 500         |
+|    total_timesteps      | 172032      |
+| train/                  |             |
+|    approx_kl            | 0.008421287 |
+|    clip_fraction        | 0.0545      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.03       |
+|    explained_variance   | 0.378       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 3.48        |
+|    n_updates            | 200         |
+|    policy_gradient_loss | -0.00458    |
+|    value_loss           | 8.71        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 33.7        |
+|    ep_reward_mean       | 4.91        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 378         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.145       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 40.1        |
+|    ep_rew_mean          | 5.48        |
+| time/                   |             |
+|    fps                  | 344         |
+|    iterations           | 22          |
+|    time_elapsed         | 523         |
+|    total_timesteps      | 180224      |
+| train/                  |             |
+|    approx_kl            | 0.006670926 |
+|    clip_fraction        | 0.0317      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.1        |
+|    explained_variance   | 0.223       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 13.5        |
+|    n_updates            | 210         |
+|    policy_gradient_loss | -0.00254    |
+|    value_loss           | 18.4        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 40.1        |
+|    ep_reward_mean       | 5.48        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 363         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.15        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 31          |
+|    ep_rew_mean          | 4.97        |
+| time/                   |             |
+|    fps                  | 345         |
+|    iterations           | 23          |
+|    time_elapsed         | 545         |
+|    total_timesteps      | 188416      |
+| train/                  |             |
+|    approx_kl            | 0.008067099 |
+|    clip_fraction        | 0.0659      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.15       |
+|    explained_variance   | 0.524       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 1.45        |
+|    n_updates            | 220         |
+|    policy_gradient_loss | -0.00619    |
+|    value_loss           | 3.44        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 31          |
+|    ep_reward_mean       | 4.97        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 376         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.134       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 55.7        |
+|    ep_rew_mean          | 6.15        |
+| time/                   |             |
+|    fps                  | 351         |
+|    iterations           | 24          |
+|    time_elapsed         | 559         |
+|    total_timesteps      | 196608      |
+| train/                  |             |
+|    approx_kl            | 0.009546206 |
+|    clip_fraction        | 0.0828      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.12       |
+|    explained_variance   | 0.637       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 1.65        |
+|    n_updates            | 230         |
+|    policy_gradient_loss | -0.00766    |
+|    value_loss           | 2.77        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 55.7        |
+|    ep_reward_mean       | 6.15        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 347         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.138        |
+|    kill                 | 0.0173       |
+| rollout/                |              |
+|    ep_len_mean          | 48           |
+|    ep_rew_mean          | 7.79         |
+| time/                   |              |
+|    fps                  | 354          |
+|    iterations           | 25           |
+|    time_elapsed         | 577          |
+|    total_timesteps      | 204800       |
+| train/                  |              |
+|    approx_kl            | 0.0081791645 |
+|    clip_fraction        | 0.0788       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -2.16        |
+|    explained_variance   | 0.757        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.661        |
+|    n_updates            | 240          |
+|    policy_gradient_loss | -0.00807     |
+|    value_loss           | 1.75         |
+| zulrah/                 |              |
+|    death_rate           | 0.95         |
+|    ep_length_mean       | 48           |
+|    ep_reward_mean       | 7.79         |
+|    kill_rate            | 0.02         |
+|    left_rate            | 0            |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 341          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.144       |
+|    kill                 | 0.0338      |
+| rollout/                |             |
+|    ep_len_mean          | 77.9        |
+|    ep_rew_mean          | 12.4        |
+| time/                   |             |
+|    fps                  | 361         |
+|    iterations           | 26          |
+|    time_elapsed         | 588         |
+|    total_timesteps      | 212992      |
+| train/                  |             |
+|    approx_kl            | 0.007369291 |
+|    clip_fraction        | 0.0651      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.14       |
+|    explained_variance   | 0.27        |
+|    learning_rate        | 0.0003      |
+|    loss                 | 5.76        |
+|    n_updates            | 250         |
+|    policy_gradient_loss | -0.00629    |
+|    value_loss           | 12.2        |
+| zulrah/                 |             |
+|    death_rate           | 0.9         |
+|    ep_length_mean       | 77.9        |
+|    ep_reward_mean       | 12.4        |
+|    kill_rate            | 0.04        |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 259         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.16        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 32.6        |
+|    ep_rew_mean          | 4.19        |
+| time/                   |             |
+|    fps                  | 364         |
+|    iterations           | 27          |
+|    time_elapsed         | 606         |
+|    total_timesteps      | 221184      |
+| train/                  |             |
+|    approx_kl            | 0.006679972 |
+|    clip_fraction        | 0.0472      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.19       |
+|    explained_variance   | 0.266       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 2.18        |
+|    n_updates            | 260         |
+|    policy_gradient_loss | -0.00489    |
+|    value_loss           | 18.7        |
+| zulrah/                 |             |
+|    death_rate           | 0.94        |
+|    ep_length_mean       | 32.6        |
+|    ep_reward_mean       | 4.19        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.04        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 396         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.112       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 69.2        |
+|    ep_rew_mean          | 6.71        |
+| time/                   |             |
+|    fps                  | 367         |
+|    iterations           | 28          |
+|    time_elapsed         | 624         |
+|    total_timesteps      | 229376      |
+| train/                  |             |
+|    approx_kl            | 0.009458976 |
+|    clip_fraction        | 0.101       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.06       |
+|    explained_variance   | 0.547       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 1.2         |
+|    n_updates            | 270         |
+|    policy_gradient_loss | -0.0111     |
+|    value_loss           | 3.18        |
+| zulrah/                 |             |
+|    death_rate           | 0.91        |
+|    ep_length_mean       | 69.2        |
+|    ep_reward_mean       | 6.71        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.04        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 333         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.14        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 36.2        |
+|    ep_rew_mean          | 5.79        |
+| time/                   |             |
+|    fps                  | 367         |
+|    iterations           | 29          |
+|    time_elapsed         | 645         |
+|    total_timesteps      | 237568      |
+| train/                  |             |
+|    approx_kl            | 0.009076246 |
+|    clip_fraction        | 0.0869      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.11       |
+|    explained_variance   | 0.745       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.788       |
+|    n_updates            | 280         |
+|    policy_gradient_loss | -0.00703    |
+|    value_loss           | 1.71        |
+| zulrah/                 |             |
+|    death_rate           | 0.94        |
+|    ep_length_mean       | 36.2        |
+|    ep_reward_mean       | 5.79        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.05        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 356         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.134       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 34.9        |
+|    ep_rew_mean          | 4.78        |
+| time/                   |             |
+|    fps                  | 366         |
+|    iterations           | 30          |
+|    time_elapsed         | 670         |
+|    total_timesteps      | 245760      |
+| train/                  |             |
+|    approx_kl            | 0.008654643 |
+|    clip_fraction        | 0.11        |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.02       |
+|    explained_variance   | 0.695       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.755       |
+|    n_updates            | 290         |
+|    policy_gradient_loss | -0.00877    |
+|    value_loss           | 1.7         |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 34.9        |
+|    ep_reward_mean       | 4.78        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 381         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.158        |
+|    kill                 | 0            |
+| rollout/                |              |
+|    ep_len_mean          | 26.8         |
+|    ep_rew_mean          | 5.02         |
+| time/                   |              |
+|    fps                  | 365          |
+|    iterations           | 31           |
+|    time_elapsed         | 695          |
+|    total_timesteps      | 253952       |
+| train/                  |              |
+|    approx_kl            | 0.0074659605 |
+|    clip_fraction        | 0.0872       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.97        |
+|    explained_variance   | 0.666        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.897        |
+|    n_updates            | 300          |
+|    policy_gradient_loss | -0.00831     |
+|    value_loss           | 1.75         |
+| zulrah/                 |              |
+|    death_rate           | 0.99         |
+|    ep_length_mean       | 26.8         |
+|    ep_reward_mean       | 5.02         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.01         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 375          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.15        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 19.7        |
+|    ep_rew_mean          | 3.33        |
+| time/                   |             |
+|    fps                  | 361         |
+|    iterations           | 32          |
+|    time_elapsed         | 724         |
+|    total_timesteps      | 262144      |
+| train/                  |             |
+|    approx_kl            | 0.008284278 |
+|    clip_fraction        | 0.0749      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.96       |
+|    explained_variance   | 0.699       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 1.05        |
+|    n_updates            | 310         |
+|    policy_gradient_loss | -0.00742    |
+|    value_loss           | 1.92        |
+| zulrah/                 |             |
+|    death_rate           | 0.99        |
+|    ep_length_mean       | 19.7        |
+|    ep_reward_mean       | 3.33        |
+|    kill_rate            | 0           |
+|    left_rate            | 0           |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 417         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.141       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 34.5        |
+|    ep_rew_mean          | 5.03        |
+| time/                   |             |
+|    fps                  | 359         |
+|    iterations           | 33          |
+|    time_elapsed         | 752         |
+|    total_timesteps      | 270336      |
+| train/                  |             |
+|    approx_kl            | 0.009497673 |
+|    clip_fraction        | 0.1         |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.534       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.69        |
+|    n_updates            | 320         |
+|    policy_gradient_loss | -0.00832    |
+|    value_loss           | 1.76        |
+| zulrah/                 |             |
+|    death_rate           | 0.96        |
+|    ep_length_mean       | 34.5        |
+|    ep_reward_mean       | 5.03        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.03        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 375         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.13        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 50.4        |
+|    ep_rew_mean          | 4.59        |
+| time/                   |             |
+|    fps                  | 356         |
+|    iterations           | 34          |
+|    time_elapsed         | 781         |
+|    total_timesteps      | 278528      |
+| train/                  |             |
+|    approx_kl            | 0.008520257 |
+|    clip_fraction        | 0.0826      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.97       |
+|    explained_variance   | 0.708       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.852       |
+|    n_updates            | 330         |
+|    policy_gradient_loss | -0.00716    |
+|    value_loss           | 1.52        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 50.4        |
+|    ep_reward_mean       | 4.59        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 386         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.107       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 31.7        |
+|    ep_rew_mean          | 3.88        |
+| time/                   |             |
+|    fps                  | 353         |
+|    iterations           | 35          |
+|    time_elapsed         | 811         |
+|    total_timesteps      | 286720      |
+| train/                  |             |
+|    approx_kl            | 0.012153572 |
+|    clip_fraction        | 0.112       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.02       |
+|    explained_variance   | 0.694       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.691       |
+|    n_updates            | 340         |
+|    policy_gradient_loss | -0.00702    |
+|    value_loss           | 1.33        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 31.7        |
+|    ep_reward_mean       | 3.88        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 403         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.101       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 65.7        |
+|    ep_rew_mean          | 6.01        |
+| time/                   |             |
+|    fps                  | 352         |
+|    iterations           | 36          |
+|    time_elapsed         | 837         |
+|    total_timesteps      | 294912      |
+| train/                  |             |
+|    approx_kl            | 0.008380417 |
+|    clip_fraction        | 0.0858      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.99       |
+|    explained_variance   | 0.638       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.473       |
+|    n_updates            | 350         |
+|    policy_gradient_loss | -0.00941    |
+|    value_loss           | 1.33        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 65.7        |
+|    ep_reward_mean       | 6.01        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 350         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.106       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 42.2        |
+|    ep_rew_mean          | 4.45        |
+| time/                   |             |
+|    fps                  | 351         |
+|    iterations           | 37          |
+|    time_elapsed         | 862         |
+|    total_timesteps      | 303104      |
+| train/                  |             |
+|    approx_kl            | 0.009738743 |
+|    clip_fraction        | 0.0985      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.09       |
+|    explained_variance   | 0.763       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.389       |
+|    n_updates            | 360         |
+|    policy_gradient_loss | -0.00859    |
+|    value_loss           | 0.875       |
+| zulrah/                 |             |
+|    death_rate           | 0.99        |
+|    ep_length_mean       | 42.2        |
+|    ep_reward_mean       | 4.45        |
+|    kill_rate            | 0           |
+|    left_rate            | 0           |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 389         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.117       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 41.9        |
+|    ep_rew_mean          | 4.33        |
+| time/                   |             |
+|    fps                  | 347         |
+|    iterations           | 38          |
+|    time_elapsed         | 896         |
+|    total_timesteps      | 311296      |
+| train/                  |             |
+|    approx_kl            | 0.009450427 |
+|    clip_fraction        | 0.0978      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.04       |
+|    explained_variance   | 0.762       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.521       |
+|    n_updates            | 370         |
+|    policy_gradient_loss | -0.00688    |
+|    value_loss           | 1.34        |
+| zulrah/                 |             |
+|    death_rate           | 0.96        |
+|    ep_length_mean       | 41.9        |
+|    ep_reward_mean       | 4.33        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 392         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.113       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 48.7        |
+|    ep_rew_mean          | 6.42        |
+| time/                   |             |
+|    fps                  | 346         |
+|    iterations           | 39          |
+|    time_elapsed         | 922         |
+|    total_timesteps      | 319488      |
+| train/                  |             |
+|    approx_kl            | 0.008092444 |
+|    clip_fraction        | 0.0774      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.94       |
+|    explained_variance   | 0.621       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.551       |
+|    n_updates            | 380         |
+|    policy_gradient_loss | -0.00781    |
+|    value_loss           | 1.43        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 48.7        |
+|    ep_reward_mean       | 6.42        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 340         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.115       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 39          |
+|    ep_rew_mean          | 4.03        |
+| time/                   |             |
+|    fps                  | 342         |
+|    iterations           | 40          |
+|    time_elapsed         | 956         |
+|    total_timesteps      | 327680      |
+| train/                  |             |
+|    approx_kl            | 0.008663841 |
+|    clip_fraction        | 0.093       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.01       |
+|    explained_variance   | 0.717       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.551       |
+|    n_updates            | 390         |
+|    policy_gradient_loss | -0.00683    |
+|    value_loss           | 1.12        |
+| zulrah/                 |             |
+|    death_rate           | 0.95        |
+|    ep_length_mean       | 39          |
+|    ep_reward_mean       | 4.03        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.03        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 400         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.138       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 53.6        |
+|    ep_rew_mean          | 5.25        |
+| time/                   |             |
+|    fps                  | 340         |
+|    iterations           | 41          |
+|    time_elapsed         | 987         |
+|    total_timesteps      | 335872      |
+| train/                  |             |
+|    approx_kl            | 0.007609185 |
+|    clip_fraction        | 0.0784      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.723       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.444       |
+|    n_updates            | 400         |
+|    policy_gradient_loss | -0.00805    |
+|    value_loss           | 1.25        |
+| zulrah/                 |             |
+|    death_rate           | 0.94        |
+|    ep_length_mean       | 53.6        |
+|    ep_reward_mean       | 5.25        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 369         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.133       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 52.2        |
+|    ep_rew_mean          | 7.11        |
+| time/                   |             |
+|    fps                  | 340         |
+|    iterations           | 42          |
+|    time_elapsed         | 1009        |
+|    total_timesteps      | 344064      |
+| train/                  |             |
+|    approx_kl            | 0.009618066 |
+|    clip_fraction        | 0.0793      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.97       |
+|    explained_variance   | 0.753       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.672       |
+|    n_updates            | 410         |
+|    policy_gradient_loss | -0.00471    |
+|    value_loss           | 1.41        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 52.2        |
+|    ep_reward_mean       | 7.11        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 323         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.129       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 14.2        |
+|    ep_rew_mean          | 2.47        |
+| time/                   |             |
+|    fps                  | 336         |
+|    iterations           | 43          |
+|    time_elapsed         | 1046        |
+|    total_timesteps      | 352256      |
+| train/                  |             |
+|    approx_kl            | 0.010969644 |
+|    clip_fraction        | 0.0993      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.96       |
+|    explained_variance   | 0.813       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.463       |
+|    n_updates            | 420         |
+|    policy_gradient_loss | -0.00694    |
+|    value_loss           | 1.08        |
+| zulrah/                 |             |
+|    death_rate           | 1           |
+|    ep_length_mean       | 14.2        |
+|    ep_reward_mean       | 2.47        |
+|    kill_rate            | 0           |
+|    left_rate            | 0           |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 438         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.141       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 31.2        |
+|    ep_rew_mean          | 4.23        |
+| time/                   |             |
+|    fps                  | 335         |
+|    iterations           | 44          |
+|    time_elapsed         | 1073        |
+|    total_timesteps      | 360448      |
+| train/                  |             |
+|    approx_kl            | 0.009484759 |
+|    clip_fraction        | 0.0799      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.84       |
+|    explained_variance   | 0.695       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.664       |
+|    n_updates            | 430         |
+|    policy_gradient_loss | -0.00605    |
+|    value_loss           | 1.54        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 31.2        |
+|    ep_reward_mean       | 4.23        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 395         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.136       |
+|    kill                 | 0.017       |
+| rollout/                |             |
+|    ep_len_mean          | 20.8        |
+|    ep_rew_mean          | 2.75        |
+| time/                   |             |
+|    fps                  | 333         |
+|    iterations           | 45          |
+|    time_elapsed         | 1105        |
+|    total_timesteps      | 368640      |
+| train/                  |             |
+|    approx_kl            | 0.008563397 |
+|    clip_fraction        | 0.0857      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.81       |
+|    explained_variance   | 0.669       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.67        |
+|    n_updates            | 440         |
+|    policy_gradient_loss | -0.00704    |
+|    value_loss           | 1.52        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 20.8        |
+|    ep_reward_mean       | 2.75        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 431         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.134       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 22.4        |
+|    ep_rew_mean          | 3.57        |
+| time/                   |             |
+|    fps                  | 331         |
+|    iterations           | 46          |
+|    time_elapsed         | 1137        |
+|    total_timesteps      | 376832      |
+| train/                  |             |
+|    approx_kl            | 0.007299638 |
+|    clip_fraction        | 0.0442      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.86       |
+|    explained_variance   | 0.205       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 7.88        |
+|    n_updates            | 450         |
+|    policy_gradient_loss | -0.0026     |
+|    value_loss           | 9.95        |
+| zulrah/                 |             |
+|    death_rate           | 0.98        |
+|    ep_length_mean       | 22.4        |
+|    ep_reward_mean       | 3.57        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 411         |
+-----------------------------------------
+------------------------------------------
+| reward_components/      |              |
+|    dmg_dealt            | 0.136        |
+|    kill                 | 0.00854      |
+| rollout/                |              |
+|    ep_len_mean          | 46.5         |
+|    ep_rew_mean          | 7.14         |
+| time/                   |              |
+|    fps                  | 331          |
+|    iterations           | 47           |
+|    time_elapsed         | 1160         |
+|    total_timesteps      | 385024       |
+| train/                  |              |
+|    approx_kl            | 0.0081434725 |
+|    clip_fraction        | 0.0744       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.95        |
+|    explained_variance   | 0.665        |
+|    learning_rate        | 0.0003       |
+|    loss                 | 0.626        |
+|    n_updates            | 460          |
+|    policy_gradient_loss | -0.0049      |
+|    value_loss           | 1.97         |
+| zulrah/                 |              |
+|    death_rate           | 0.98         |
+|    ep_length_mean       | 46.5         |
+|    ep_reward_mean       | 7.14         |
+|    kill_rate            | 0            |
+|    left_rate            | 0.01         |
+|    timeout_rate         | 0            |
+|    zulrah_min_hp_mean   | 322          |
+------------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.15        |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 22.9        |
+|    ep_rew_mean          | 3.58        |
+| time/                   |             |
+|    fps                  | 329         |
+|    iterations           | 48          |
+|    time_elapsed         | 1191        |
+|    total_timesteps      | 393216      |
+| train/                  |             |
+|    approx_kl            | 0.009041545 |
+|    clip_fraction        | 0.0845      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.479       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.804       |
+|    n_updates            | 470         |
+|    policy_gradient_loss | -0.0069     |
+|    value_loss           | 5.01        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 22.9        |
+|    ep_reward_mean       | 3.58        |
+|    kill_rate            | 0           |
+|    left_rate            | 0.02        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 411         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.107       |
+|    kill                 | 0           |
+| rollout/                |             |
+|    ep_len_mean          | 36.7        |
+|    ep_rew_mean          | 5.2         |
+| time/                   |             |
+|    fps                  | 328         |
+|    iterations           | 49          |
+|    time_elapsed         | 1221        |
+|    total_timesteps      | 401408      |
+| train/                  |             |
+|    approx_kl            | 0.007770296 |
+|    clip_fraction        | 0.0694      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.85       |
+|    explained_variance   | 0.661       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.794       |
+|    n_updates            | 480         |
+|    policy_gradient_loss | -0.00515    |
+|    value_loss           | 1.59        |
+| zulrah/                 |             |
+|    death_rate           | 0.96        |
+|    ep_length_mean       | 36.7        |
+|    ep_reward_mean       | 5.2         |
+|    kill_rate            | 0           |
+|    left_rate            | 0.03        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 371         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.116       |
+|    kill                 | 0.00835     |
+| rollout/                |             |
+|    ep_len_mean          | 49.7        |
+|    ep_rew_mean          | 6.7         |
+| time/                   |             |
+|    fps                  | 329         |
+|    iterations           | 50          |
+|    time_elapsed         | 1244        |
+|    total_timesteps      | 409600      |
+| train/                  |             |
+|    approx_kl            | 0.008299911 |
+|    clip_fraction        | 0.0885      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.94       |
+|    explained_variance   | 0.718       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.548       |
+|    n_updates            | 490         |
+|    policy_gradient_loss | -0.00561    |
+|    value_loss           | 1.23        |
+| zulrah/                 |             |
+|    death_rate           | 0.96        |
+|    ep_length_mean       | 49.7        |
+|    ep_reward_mean       | 6.7         |
+|    kill_rate            | 0.01        |
+|    left_rate            | 0           |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 350         |
+-----------------------------------------
+-----------------------------------------
+| reward_components/      |             |
+|    dmg_dealt            | 0.123       |
+|    kill                 | 0.00818     |
+| rollout/                |             |
+|    ep_len_mean          | 53          |
+|    ep_rew_mean          | 5.8         |
+| time/                   |             |
+|    fps                  | 329         |
+|    iterations           | 51          |
+|    time_elapsed         | 1267        |
+|    total_timesteps      | 417792      |
+| train/                  |             |
+|    approx_kl            | 0.010843696 |
+|    clip_fraction        | 0.0882      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.04       |
+|    explained_variance   | 0.392       |
+|    learning_rate        | 0.0003      |
+|    loss                 | 0.644       |
+|    n_updates            | 500         |
+|    policy_gradient_loss | -0.00723    |
+|    value_loss           | 4.28        |
+| zulrah/                 |             |
+|    death_rate           | 0.97        |
+|    ep_length_mean       | 53          |
+|    ep_reward_mean       | 5.8         |
+|    kill_rate            | 0           |
+|    left_rate            | 0.01        |
+|    timeout_rate         | 0           |
+|    zulrah_min_hp_mean   | 355         |
