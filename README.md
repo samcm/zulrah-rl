@@ -6,8 +6,8 @@ Each milestone makes one RL concept concrete and watchable. No LLM is in the con
 
 ## Why
 
-To learn RL by watching it happen, not by reading about it. Each milestone exists to
-make one PPO concept concrete and observable; if you can't see it, it isn't done.
+To learn RL by watching it happen in a game that I'm familar with. Each milestone exists to
+make one PPO concept concrete and observable.
 Zulrah because the fight is genuinely hard for a small network, and because the payoff
 is watching a 20k-parameter MLP prayer-flick a boss in a real 3D client.
 
